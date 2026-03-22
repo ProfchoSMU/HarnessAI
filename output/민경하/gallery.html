@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>민경하 이모티콘</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif; background:#f0ede6; color:#222; }
+
+  /* 상단 네비 */
+  nav {
+    background:#2b1d0e;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 32px; height:44px;
+  }
+  nav .nav-title { color:#f5c518; font-weight:700; font-size:1rem; letter-spacing:1px; }
+  nav .nav-name  { color:#fff; font-size:.9rem; }
+  nav .nav-center { color:#fff; font-size:.9rem; font-weight:600; }
+
+  /* 노란 헤더 */
+  .hero {
+    background:#f5c518;
+    text-align:center;
+    padding:28px 20px 24px;
+    border-bottom:3px solid #2b1d0e;
+  }
+  .hero h1 { font-size:2rem; font-weight:900; color:#1a1200; margin-bottom:6px; }
+  .hero p  { font-size:.9rem; color:#4a3800; }
+
+  /* 대표 이미지 영역 */
+  .profile-area {
+    text-align:center; padding:32px 20px 16px;
+  }
+  .profile-circle {
+    width:120px; height:120px; border-radius:50%;
+    border:3px solid #ddd; background:#fff;
+    display:inline-flex; align-items:center; justify-content:center;
+    overflow:hidden; margin-bottom:16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  }
+  .profile-circle img { width:100%; height:100%; object-fit:cover; }
+  .profile-meta {
+    display:flex; gap:24px; justify-content:center;
+    font-size:.82rem; color:#888; margin-top:4px;
+  }
+  .profile-meta span { display:flex; align-items:center; gap:4px; }
+
+  /* SPECIAL 섹션 */
+  .section-label {
+    text-align:center; font-size:.75rem; font-weight:700;
+    letter-spacing:2px; color:#aaa; margin:24px 0 16px;
+  }
+  .special-cards {
+    display:flex; gap:16px; justify-content:center;
+    padding:0 20px 8px;
+  }
+  .special-card {
+    background:#fff; border-radius:14px; padding:16px;
+    text-align:center; width:160px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08); cursor:pointer;
+  }
+  .special-card img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px; }
+  .special-card .sc-label { font-size:.8rem; font-weight:700; color:#333; margin-top:10px; }
+  .special-card .sc-size  { font-size:.72rem; color:#aaa; margin-top:2px; }
+
+  /* EMOTICONS 그리드 */
+  .emoti-grid {
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:12px;
+    padding:8px 24px 40px;
+    max-width:900px; margin:0 auto;
+  }
+  .emoti-card {
+    background:#fff; border-radius:14px; padding:12px 8px 10px;
+    text-align:center; position:relative; cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,.07);
+    transition:transform .15s, box-shadow .15s;
+  }
+  .emoti-card:hover { transform:translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,.13); }
+  .emoti-num {
+    position:absolute; top:8px; left:10px;
+    font-size:.68rem; color:#bbb; font-weight:600;
+  }
+  .emoti-card img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px; }
+  .emoti-label { font-size:.78rem; color:#555; margin-top:8px; font-weight:500; }
+
+  /* 모달 */
+  .modal {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.78); z-index:200;
+    align-items:center; justify-content:center;
+  }
+  .modal.show { display:flex; }
+  .modal img {
+    max-width:82vw; max-height:82vh;
+    border-radius:16px; box-shadow:0 8px 40px rgba(0,0,0,.5);
+  }
+  .modal-close {
+    position:fixed; top:18px; right:26px;
+    color:#fff; font-size:2.2rem; cursor:pointer; font-weight:300; line-height:1;
+  }
+
+  footer {
+    text-align:center; padding:24px;
+    font-size:.78rem; color:#aaa;
+    border-top:1px solid #ddd;
+  }
+</style>
+</head>
+<body>
+
+<!-- 네비게이션 -->
+<nav>
+  <span class="nav-title">Harness AI</span>
+  <span class="nav-center">민경하</span>
+  <span class="nav-name">병맛 스타일</span>
+</nav>
+
+<!-- 노란 헤더 -->
+<div class="hero">
+  <h1>민경하</h1>
+  <p>병맛 이모티콘 18종 세트</p>
+</div>
+
+<!-- 대표 이미지 -->
+<div class="profile-area">
+  <div class="profile-circle">
+    <img src='emoticons/01_hi.png' alt='대표'>
+  </div>
+  <div class="profile-meta">
+    <span>🎭 18개 이모티콘</span>
+    <span>📐 1024 x 1024px</span>
+    <span>🖼 PNG</span>
+  </div>
+</div>
+
+<!-- SPECIAL -->
+<div class="section-label">SPECIAL</div>
+<div class="special-cards">
+  
+  <div class="special-card" onclick="openModal('emoticons/01_hi.png')">
+    <img src="emoticons/01_hi.png" alt="스페셜">
+    <div class="sc-label">메인 이미지</div>
+    <div class="sc-size">240 x 240px</div>
+  </div>
+  <div class="special-card" onclick="openModal('emoticons/02_thanks.png')">
+    <img src="emoticons/02_thanks.png" alt="스페셜">
+    <div class="sc-label">탭 이미지</div>
+    <div class="sc-size">96 x 74px</div>
+  </div>
+</div>
+
+<!-- EMOTICONS -->
+<div class="section-label">EMOTICONS</div>
+<div class="emoti-grid">
+  
+            <div class="emoti-card" onclick="openModal('emoticons/01_hi.png')">
+                <div class="emoti-num">01</div>
+                <img src="emoticons/01_hi.png" alt="인사/안녕">
+                <div class="emoti-label">인사/안녕</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/02_thanks.png')">
+                <div class="emoti-num">02</div>
+                <img src="emoticons/02_thanks.png" alt="감사/고마워">
+                <div class="emoti-label">감사/고마워</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/03_love.png')">
+                <div class="emoti-num">03</div>
+                <img src="emoticons/03_love.png" alt="사랑/좋아해">
+                <div class="emoti-label">사랑/좋아해</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/04_cry.png')">
+                <div class="emoti-num">04</div>
+                <img src="emoticons/04_cry.png" alt="울음/슬픔">
+                <div class="emoti-label">울음/슬픔</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/05_angry.png')">
+                <div class="emoti-num">05</div>
+                <img src="emoticons/05_angry.png" alt="분노/화남">
+                <div class="emoti-label">분노/화남</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/06_surprise.png')">
+                <div class="emoti-num">06</div>
+                <img src="emoticons/06_surprise.png" alt="놀람/충격">
+                <div class="emoti-label">놀람/충격</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/07_lol.png')">
+                <div class="emoti-num">07</div>
+                <img src="emoticons/07_lol.png" alt="웃음/ㅋㅋ">
+                <div class="emoti-label">웃음/ㅋㅋ</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/08_ok.png')">
+                <div class="emoti-num">08</div>
+                <img src="emoticons/08_ok.png" alt="좋아요/엄지">
+                <div class="emoti-label">좋아요/엄지</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/09_sorry.png')">
+                <div class="emoti-num">09</div>
+                <img src="emoticons/09_sorry.png" alt="미안/죄송">
+                <div class="emoti-label">미안/죄송</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/10_party.png')">
+                <div class="emoti-num">10</div>
+                <img src="emoticons/10_party.png" alt="축하/파티">
+                <div class="emoti-label">축하/파티</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/11_tired.png')">
+                <div class="emoti-num">11</div>
+                <img src="emoticons/11_tired.png" alt="피곤/지침">
+                <div class="emoti-label">피곤/지침</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/12_no.png')">
+                <div class="emoti-num">12</div>
+                <img src="emoticons/12_no.png" alt="거부/싫어">
+                <div class="emoti-label">거부/싫어</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/13_work.png')">
+                <div class="emoti-num">13</div>
+                <img src="emoticons/13_work.png" alt="출근/좀비">
+                <div class="emoti-label">출근/좀비</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/14_off.png')">
+                <div class="emoti-num">14</div>
+                <img src="emoticons/14_off.png" alt="퇴근/해방">
+                <div class="emoti-label">퇴근/해방</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/15_eat.png')">
+                <div class="emoti-num">15</div>
+                <img src="emoticons/15_eat.png" alt="밥먹자">
+                <div class="emoti-label">밥먹자</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/16_coffee.png')">
+                <div class="emoti-num">16</div>
+                <img src="emoticons/16_coffee.png" alt="커피/카페인">
+                <div class="emoti-label">커피/카페인</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/17_sleep.png')">
+                <div class="emoti-num">17</div>
+                <img src="emoticons/17_sleep.png" alt="잠/졸림">
+                <div class="emoti-label">잠/졸림</div>
+            </div>
+            <div class="emoti-card" onclick="openModal('emoticons/18_fighting.png')">
+                <div class="emoti-num">18</div>
+                <img src="emoticons/18_fighting.png" alt="응원/파이팅">
+                <div class="emoti-label">응원/파이팅</div>
+            </div>
+</div>
+
+<footer>
+  Made with Claude + DALL-E 3 &nbsp;|&nbsp; 2026.03.22
+</footer>
+
+<!-- 모달 -->
+<div class="modal" id="modal" onclick="closeModal()">
+  <span class="modal-close">&times;</span>
+  <img id="modal-img" src="" alt="">
+</div>
+
+<script>
+  function openModal(src) {
+    document.getElementById('modal-img').src = src;
+    document.getElementById('modal').classList.add('show');
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('show');
+  }
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+
+</body>
+</html>
