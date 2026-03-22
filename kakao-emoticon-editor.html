@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>카카오 이모티콘 편집기</title>
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --panel: #242424;
+    --card: #2e2e2e;
+    --border: #3a3a3a;
+    --accent: #FFE000;
+    --accent2: #f5a623;
+    --text: #e8e8e8;
+    --muted: #888;
+    --danger: #ff4f4f;
+    --green: #4caf50;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    height: 52px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .topbar-logo {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 800; font-size: 16px;
+  }
+  .topbar-logo .dot { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .topbar-sep { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+  .topbar-actions { margin-left: auto; display: flex; gap: 8px; }
+  .btn {
+    padding: 7px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: #383838; }
+  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn.primary:hover { background: #e6cc00; }
+  .btn.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+  .btn.danger:hover { background: rgba(255,79,79,0.1); }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    width: 64px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .tool-btn {
+    width: 44px; height: 44px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .tool-btn:hover { background: var(--card); color: var(--text); }
+  .tool-btn.active { background: rgba(255,224,0,0.15); border-color: var(--accent); color: var(--accent); }
+  .tool-sep { width: 32px; height: 1px; background: var(--border); margin: 6px 0; }
+
+  /* ── CENTER ── */
+  .center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    position: relative;
+    overflow: hidden;
+  }
+  .canvas-wrapper {
+    position: relative;
+    box-shadow: 0 0 0 1px var(--border), 0 8px 40px rgba(0,0,0,0.6);
+  }
+  #bgCanvas, #mainCanvas, #overlayCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    display: block;
+  }
+  #bgCanvas   { z-index: 0; }
+  #mainCanvas { z-index: 1; }
+  #overlayCanvas { z-index: 2; }
+
+  .canvas-info {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    width: 240px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .right-panel::-webkit-scrollbar { width: 4px; }
+  .right-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .rp-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .rp-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  /* Color picker */
+  .color-row { display: flex; gap: 6px; margin-bottom: 10px; }
+  .color-swatch {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.1s, border-color 0.1s;
+  }
+  .color-swatch:hover { transform: scale(1.1); }
+  .color-swatch.active { border-color: #fff; }
+  .color-inputs { display: flex; gap: 8px; align-items: center; }
+  .color-preview {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  input[type="color"] {
+    width: 0; height: 0; opacity: 0; position: absolute;
+  }
+  .hex-input {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 12px;
+    padding: 6px 8px;
+    font-family: monospace;
+  }
+  .hex-input:focus { outline: none; border-color: var(--accent); }
+
+  /* Palette grid */
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .pal-dot {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: transform 0.1s;
+  }
+  .pal-dot:hover { transform: scale(1.2); }
+
+  /* Brush settings */
+  .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .slider-label { font-size: 12px; color: var(--muted); width: 60px; }
+  .slider-val { font-size: 12px; color: var(--text); width: 28px; text-align: right; }
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  /* Opacity / blend */
+  .opacity-row { display: flex; align-items: center; gap: 8px; }
+  .brush-shape-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .shape-btn {
+    width: 34px; height: 34px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .shape-btn:hover { border-color: var(--accent); }
+  .shape-btn.active { background: rgba(255,224,0,0.15); border-color: var(--accent); color: var(--accent); }
+
+  /* Frames strip */
+  .frames-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .frames-strip::-webkit-scrollbar { width: 3px; }
+  .frames-strip::-webkit-scrollbar-thumb { background: var(--border); }
+  .frame-thumb {
+    position: relative;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color 0.15s;
+  }
+  .frame-thumb:hover { border-color: var(--muted); }
+  .frame-thumb.active { border-color: var(--accent); }
+  .frame-thumb canvas { display: block; width: 100%; height: auto; }
+  .frame-thumb .frame-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.6);
+    font-size: 10px;
+    padding: 2px 6px;
+    color: #ccc;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .frame-del {
+    background: none; border: none; color: var(--danger);
+    cursor: pointer; font-size: 12px; padding: 0; line-height: 1;
+  }
+  .frame-actions { display: flex; gap: 6px; margin-top: 6px; }
+
+  /* Preview */
+  .preview-box {
+    background: #f5e8c8;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .preview-bubble {
+    background: #fff;
+    border-radius: 18px 18px 18px 4px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    max-width: 160px;
+  }
+  .preview-canvas-wrap {
+    width: 80px; height: 80px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.05);
+  }
+  #previewCanvas { width: 100%; height: 100%; image-rendering: pixelated; }
+  .preview-time {
+    font-size: 10px;
+    color: #aaa;
+    align-self: flex-end;
+  }
+  .preview-controls { display: flex; gap: 8px; align-items: center; }
+  .prev-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .prev-btn:hover { background: #383838; }
+  .fps-label { font-size: 11px; color: var(--muted); }
+
+  /* TOOLTIP */
+  [data-tip] { position: relative; }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 52px; top: 50%;
+    transform: translateY(-50%);
+    background: #000;
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  /* Notices */
+  .notice {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 13px;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .notice.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="dot">😄</div>
+    카카오 이모티콘 편집기
+  </div>
+  <div class="topbar-sep"></div>
+  <button class="btn" onclick="undo()" title="Ctrl+Z">↩ 실행취소</button>
+  <button class="btn" onclick="redo()" title="Ctrl+Y">↪ 다시실행</button>
+  <div class="topbar-sep"></div>
+  <button class="btn" onclick="clearCanvas()">🗑 지우기</button>
+
+  <div class="topbar-actions">
+    <button class="btn" onclick="exportGIF()" id="gifBtn">🎞 GIF 저장</button>
+    <button class="btn primary" onclick="exportPNG()">⬇ PNG 저장</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT TOOLS -->
+  <div class="left-panel">
+    <button class="tool-btn active" data-tool="pen"    data-tip="펜 (P)" onclick="setTool('pen')">✏️</button>
+    <button class="tool-btn"        data-tool="brush"  data-tip="브러시 (B)" onclick="setTool('brush')">🖌️</button>
+    <button class="tool-btn"        data-tool="fill"   data-tip="채우기 (F)" onclick="setTool('fill')">🪣</button>
+    <button class="tool-btn"        data-tool="eraser" data-tip="지우개 (E)" onclick="setTool('eraser')">🧹</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn"        data-tool="line"   data-tip="선" onclick="setTool('line')">╱</button>
+    <button class="tool-btn"        data-tool="rect"   data-tip="사각형" onclick="setTool('rect')">▭</button>
+    <button class="tool-btn"        data-tool="circle" data-tip="원" onclick="setTool('circle')">◯</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn"        data-tool="eyedrop" data-tip="스포이트 (I)" onclick="setTool('eyedrop')">💉</button>
+    <button class="tool-btn"        data-tool="text"   data-tip="텍스트 (T)" onclick="setTool('text')">T</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn"        data-tip="격자 토글 (G)" onclick="toggleGrid()" id="gridBtn">⊞</button>
+    <button class="tool-btn"        data-tip="중앙 가이드" onclick="toggleGuide()" id="guideBtn">✛</button>
+  </div>
+
+  <!-- CANVAS CENTER -->
+  <div class="center" id="canvasCenter">
+    <div class="canvas-wrapper" id="canvasWrapper" style="width:360px;height:360px;">
+      <canvas id="bgCanvas"      width="360" height="360"></canvas>
+      <canvas id="mainCanvas"    width="360" height="360"></canvas>
+      <canvas id="overlayCanvas" width="360" height="360"></canvas>
+    </div>
+    <div class="canvas-info" id="canvasInfo">360 × 360 px · 줌: 100%</div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- 색상 -->
+    <div class="rp-section">
+      <div class="rp-title">색상</div>
+      <div class="color-row">
+        <div class="color-preview" id="fgPreview" onclick="document.getElementById('fgPicker').click()" title="전경색"></div>
+        <input type="color" id="fgPicker" value="#222222" oninput="setFgColor(this.value)" />
+        <div style="position:relative">
+          <div class="color-preview" id="bgPreview" style="background:#fff;opacity:0.5;" onclick="document.getElementById('bgPicker').click()" title="배경색"></div>
+          <input type="color" id="bgPicker" value="#ffffff" oninput="setBgColor(this.value)" />
+        </div>
+        <div class="color-inputs" style="flex:1">
+          <input class="hex-input" id="hexInput" value="#222222" maxlength="7" oninput="onHexInput(this.value)" spellcheck="false" />
+        </div>
+      </div>
+      <!-- Palette -->
+      <div class="palette-grid" id="paletteGrid"></div>
+      <!-- Recent colors -->
+      <div class="rp-title" style="margin-top:6px">최근 사용</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;" id="recentColors"></div>
+    </div>
+
+    <!-- 브러시 -->
+    <div class="rp-section">
+      <div class="rp-title">브러시</div>
+      <div class="slider-row">
+        <span class="slider-label">크기</span>
+        <input type="range" id="sizeSlider" min="1" max="60" value="8" oninput="updateBrush()"/>
+        <span class="slider-val" id="sizeVal">8</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">불투명도</span>
+        <input type="range" id="opacitySlider" min="1" max="100" value="100" oninput="updateBrush()"/>
+        <span class="slider-val" id="opacityVal">100</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">경도</span>
+        <input type="range" id="hardnessSlider" min="0" max="100" value="100" oninput="updateBrush()"/>
+        <span class="slider-val" id="hardnessVal">100</span>
+      </div>
+      <div class="rp-title" style="margin-top:10px">모양</div>
+      <div class="brush-shape-row">
+        <button class="shape-btn active" data-shape="round"  onclick="setBrushShape('round')">●</button>
+        <button class="shape-btn"        data-shape="square" onclick="setBrushShape('square')">■</button>
+        <button class="shape-btn"        data-shape="star"   onclick="setBrushShape('star')">★</button>
+        <button class="shape-btn"        data-shape="heart"  onclick="setBrushShape('heart')">♥</button>
+      </div>
+    </div>
+
+    <!-- 프레임 (애니메이션) -->
+    <div class="rp-section">
+      <div class="rp-title">프레임 (애니메이션)</div>
+      <div class="frames-strip" id="framesStrip"></div>
+      <div class="frame-actions">
+        <button class="btn" style="flex:1;font-size:12px" onclick="addFrame()">+ 프레임 추가</button>
+        <button class="btn" style="font-size:12px" onclick="duplicateFrame()">복제</button>
+      </div>
+      <div class="slider-row" style="margin-top:10px">
+        <span class="slider-label">FPS</span>
+        <input type="range" id="fpsSlider" min="1" max="24" value="8" oninput="updateFPS()"/>
+        <span class="slider-val" id="fpsVal">8</span>
+      </div>
+    </div>
+
+    <!-- 미리보기 -->
+    <div class="rp-section">
+      <div class="rp-title">미리보기 (카카오톡)</div>
+      <div class="preview-box">
+        <div class="preview-bubble">
+          <div class="preview-canvas-wrap">
+            <canvas id="previewCanvas" width="360" height="360"></canvas>
+          </div>
+          <span class="preview-time">오후 2:30</span>
+        </div>
+        <div class="preview-controls">
+          <button class="prev-btn" onclick="togglePreviewPlay()" id="playBtn">▶</button>
+          <span class="fps-label" id="previewFpsLabel">8 fps</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 캔버스 크기 -->
+    <div class="rp-section">
+      <div class="rp-title">캔버스 크기</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn" style="font-size:11px;padding:5px 10px" onclick="resizeCanvas(360,360)">360×360</button>
+        <button class="btn" style="font-size:11px;padding:5px 10px" onclick="resizeCanvas(270,270)">270×270</button>
+        <button class="btn" style="font-size:11px;padding:5px 10px" onclick="resizeCanvas(180,180)">180×180</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Notice -->
+<div class="notice" id="notice"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let currentTool   = 'pen';
+let fgColor       = '#222222';
+let bgColorVal    = '#ffffff';
+let brushSize     = 8;
+let brushOpacity  = 1;
+let brushHardness = 1;
+let brushShape    = 'round';
+let showGrid      = false;
+let showGuide     = false;
+let isDrawing     = false;
+let lastX = 0, lastY = 0;
+let startX = 0, startY = 0;
+let canvasW = 360, canvasH = 360;
+let zoom = 1;
+let recentColorsList = [];
+
+// Undo/redo
+const undoStack = [];
+const redoStack = [];
+
+// Frames
+let frames = [];
+let currentFrame = 0;
+
+// Preview animation
+let previewPlaying = false;
+let previewFrame   = 0;
+let previewTimer   = null;
+let fps = 8;
+
+/* ═══════════════════════════════════════════
+   CANVAS SETUP
+═══════════════════════════════════════════ */
+const bgCanvas      = document.getElementById('bgCanvas');
+const mainCanvas    = document.getElementById('mainCanvas');
+const overlayCanvas = document.getElementById('overlayCanvas');
+const bgCtx         = bgCanvas.getContext('2d');
+const ctx           = mainCanvas.getContext('2d');
+const ovCtx         = overlayCanvas.getContext('2d');
+const previewCanvas = document.getElementById('previewCanvas');
+const previewCtx    = previewCanvas.getContext('2d');
+
+function initBg() {
+  bgCtx.clearRect(0, 0, canvasW, canvasH);
+  // Checkerboard (transparency indicator)
+  const size = 10;
+  for (let y = 0; y < canvasH; y += size)
+    for (let x = 0; x < canvasW; x += size) {
+      bgCtx.fillStyle = (Math.floor(x/size) + Math.floor(y/size)) % 2 === 0 ? '#ccc' : '#eee';
+      bgCtx.fillRect(x, y, size, size);
+    }
+  if (showGrid) drawGrid();
+  if (showGuide) drawGuide();
+}
+function drawGrid() {
+  bgCtx.strokeStyle = 'rgba(100,100,255,0.25)';
+  bgCtx.lineWidth = 0.5;
+  const step = 20;
+  for (let x = 0; x < canvasW; x += step) { bgCtx.beginPath(); bgCtx.moveTo(x,0); bgCtx.lineTo(x,canvasH); bgCtx.stroke(); }
+  for (let y = 0; y < canvasH; y += step) { bgCtx.beginPath(); bgCtx.moveTo(0,y); bgCtx.lineTo(canvasW,y); bgCtx.stroke(); }
+}
+function drawGuide() {
+  bgCtx.strokeStyle = 'rgba(255,80,80,0.4)';
+  bgCtx.lineWidth = 1;
+  bgCtx.setLineDash([4,4]);
+  bgCtx.beginPath(); bgCtx.moveTo(canvasW/2,0); bgCtx.lineTo(canvasW/2,canvasH); bgCtx.stroke();
+  bgCtx.beginPath(); bgCtx.moveTo(0,canvasH/2); bgCtx.lineTo(canvasW,canvasH/2); bgCtx.stroke();
+  bgCtx.setLineDash([]);
+}
+
+function saveUndo() {
+  undoStack.push(ctx.getImageData(0, 0, canvasW, canvasH));
+  if (undoStack.length > 50) undoStack.shift();
+  redoStack.length = 0;
+}
+function undo() {
+  if (!undoStack.length) return;
+  redoStack.push(ctx.getImageData(0, 0, canvasW, canvasH));
+  ctx.putImageData(undoStack.pop(), 0, 0);
+  syncFrameThumb();
+  syncPreview();
+}
+function redo() {
+  if (!redoStack.length) return;
+  undoStack.push(ctx.getImageData(0, 0, canvasW, canvasH));
+  ctx.putImageData(redoStack.pop(), 0, 0);
+  syncFrameThumb();
+  syncPreview();
+}
+
+/* ═══════════════════════════════════════════
+   TOOLS
+═══════════════════════════════════════════ */
+function setTool(t) {
+  currentTool = t;
+  document.querySelectorAll('.tool-btn[data-tool]').forEach(b => {
+    b.classList.toggle('active', b.dataset.tool === t);
+  });
+  overlayCanvas.style.cursor =
+    t === 'eraser'  ? 'cell' :
+    t === 'fill'    ? 'crosshair' :
+    t === 'eyedrop' ? 'copy' :
+    t === 'text'    ? 'text' : 'crosshair';
+}
+
+function applyBrushCtx(c) {
+  c.globalAlpha = brushOpacity;
+  c.lineWidth   = brushSize;
+  c.lineCap     = brushShape === 'square' ? 'square' : 'round';
+  c.lineJoin    = 'round';
+  c.strokeStyle = fgColor;
+  c.fillStyle   = fgColor;
+}
+
+function getPos(e) {
+  const rect = mainCanvas.getBoundingClientRect();
+  const scaleX = canvasW / rect.width;
+  const scaleY = canvasH / rect.height;
+  const cx = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  return [(cx - rect.left) * scaleX, (cy - rect.top) * scaleY];
+}
+
+overlayCanvas.addEventListener('mousedown', onPointerDown);
+overlayCanvas.addEventListener('mousemove', onPointerMove);
+overlayCanvas.addEventListener('mouseup',   onPointerUp);
+overlayCanvas.addEventListener('mouseleave',onPointerUp);
+overlayCanvas.addEventListener('touchstart', e => { e.preventDefault(); onPointerDown(e); }, { passive:false });
+overlayCanvas.addEventListener('touchmove',  e => { e.preventDefault(); onPointerMove(e); }, { passive:false });
+overlayCanvas.addEventListener('touchend',   e => { e.preventDefault(); onPointerUp(e);   }, { passive:false });
+
+function onPointerDown(e) {
+  const [x, y] = getPos(e);
+  isDrawing = true; startX = x; startY = y; lastX = x; lastY = y;
+
+  if (currentTool === 'fill') {
+    saveUndo();
+    floodFill(Math.round(x), Math.round(y), hexToRgba(fgColor));
+    syncFrameThumb(); syncPreview(); return;
+  }
+  if (currentTool === 'eyedrop') { pickColor(Math.round(x), Math.round(y)); isDrawing = false; return; }
+  if (currentTool === 'text') { addText(x, y); isDrawing = false; return; }
+
+  saveUndo();
+  if (currentTool === 'pen' || currentTool === 'brush' || currentTool === 'eraser') {
+    applyBrushCtx(ctx);
+    if (currentTool === 'eraser') ctx.globalCompositeOperation = 'destination-out';
+    else ctx.globalCompositeOperation = 'source-over';
+    ctx.beginPath(); ctx.moveTo(x, y);
+    drawDot(x, y);
+  }
+}
+
+function onPointerMove(e) {
+  const [x, y] = getPos(e);
+  updateInfo(x, y);
+  if (!isDrawing) return;
+
+  if (currentTool === 'pen' || currentTool === 'brush' || currentTool === 'eraser') {
+    applyBrushCtx(ctx);
+    if (currentTool === 'eraser') ctx.globalCompositeOperation = 'destination-out';
+    else ctx.globalCompositeOperation = 'source-over';
+    if (currentTool === 'brush') {
+      // Soft brush via multiple steps
+      const steps = Math.max(1, Math.ceil(Math.hypot(x-lastX, y-lastY)));
+      for (let i = 0; i <= steps; i++) {
+        const tx = lastX + (x-lastX)*i/steps;
+        const ty = lastY + (y-lastY)*i/steps;
+        drawSoftDot(ctx, tx, ty, brushSize, fgColor, brushOpacity * (1 - brushHardness * 0.005));
+      }
+    } else {
+      ctx.lineTo(x, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, y);
+    }
+  } else {
+    // Shape preview on overlay
+    ovCtx.clearRect(0, 0, canvasW, canvasH);
+    ovCtx.globalAlpha = brushOpacity;
+    ovCtx.strokeStyle = fgColor;
+    ovCtx.lineWidth   = brushSize;
+    ovCtx.setLineDash([4, 4]);
+    if (currentTool === 'line') {
+      ovCtx.beginPath(); ovCtx.moveTo(startX, startY); ovCtx.lineTo(x, y); ovCtx.stroke();
+    } else if (currentTool === 'rect') {
+      ovCtx.strokeRect(startX, startY, x-startX, y-startY);
+    } else if (currentTool === 'circle') {
+      const rx = (x-startX)/2, ry = (y-startY)/2;
+      ovCtx.beginPath(); ovCtx.ellipse(startX+rx, startY+ry, Math.abs(rx), Math.abs(ry), 0, 0, Math.PI*2); ovCtx.stroke();
+    }
+    ovCtx.setLineDash([]);
+  }
+  lastX = x; lastY = y;
+}
+
+function onPointerUp(e) {
+  if (!isDrawing) return;
+  isDrawing = false;
+  const [x, y] = getPos(e);
+
+  if (['line','rect','circle'].includes(currentTool)) {
+    ovCtx.clearRect(0, 0, canvasW, canvasH);
+    ctx.globalCompositeOperation = 'source-over';
+    applyBrushCtx(ctx);
+    ctx.setLineDash([]);
+    if (currentTool === 'line') {
+      ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(x, y); ctx.stroke();
+    } else if (currentTool === 'rect') {
+      ctx.strokeRect(startX, startY, x-startX, y-startY);
+    } else if (currentTool === 'circle') {
+      const rx=(x-startX)/2, ry=(y-startY)/2;
+      ctx.beginPath(); ctx.ellipse(startX+rx,startY+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2); ctx.stroke();
+    }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  syncFrameThumb(); syncPreview();
+}
+
+function drawDot(x, y) {
+  ctx.beginPath();
+  ctx.arc(x, y, brushSize/2, 0, Math.PI*2);
+  ctx.fill();
+}
+function drawSoftDot(c, x, y, size, color, softness) {
+  const r = size / 2;
+  const grad = c.createRadialGradient(x, y, 0, x, y, r);
+  const alpha = Math.max(0.02, brushOpacity);
+  grad.addColorStop(0, color + Math.round(alpha * 255).toString(16).padStart(2,'0'));
+  grad.addColorStop(1, color + '00');
+  c.fillStyle = grad;
+  c.beginPath(); c.arc(x, y, r, 0, Math.PI*2); c.fill();
+}
+
+/* ═══════════════════════════════════════════
+   SPECIAL BRUSH SHAPES
+═══════════════════════════════════════════ */
+function drawSpecialBrush(x, y) {
+  ctx.save();
+  ctx.globalAlpha = brushOpacity;
+  ctx.fillStyle = fgColor;
+  const s = brushSize;
+  if (brushShape === 'star') {
+    drawStar(ctx, x, y, 5, s/2, s/4);
+  } else if (brushShape === 'heart') {
+    drawHeart(ctx, x, y, s);
+  }
+  ctx.restore();
+}
+function drawStar(c, cx, cy, spikes, outerR, innerR) {
+  let rot = (Math.PI / 2) * 3, step = Math.PI / spikes;
+  c.beginPath(); c.moveTo(cx, cy - outerR);
+  for (let i = 0; i < spikes; i++) {
+    c.lineTo(cx + Math.cos(rot)*outerR, cy + Math.sin(rot)*outerR); rot += step;
+    c.lineTo(cx + Math.cos(rot)*innerR, cy + Math.sin(rot)*innerR); rot += step;
+  }
+  c.lineTo(cx, cy - outerR); c.closePath(); c.fill();
+}
+function drawHeart(c, cx, cy, size) {
+  const s = size * 0.4;
+  c.beginPath();
+  c.moveTo(cx, cy + s);
+  c.bezierCurveTo(cx - s*2, cy - s, cx - s*2.5, cy + s*0.5, cx, cy + s*2);
+  c.bezierCurveTo(cx + s*2.5, cy + s*0.5, cx + s*2, cy - s, cx, cy + s);
+  c.fill();
+}
+
+/* ═══════════════════════════════════════════
+   FLOOD FILL
+═══════════════════════════════════════════ */
+function hexToRgba(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return [r, g, b, 255];
+}
+function colorsMatch(a, b, tol=30) {
+  return Math.abs(a[0]-b[0]) + Math.abs(a[1]-b[1]) + Math.abs(a[2]-b[2]) + Math.abs(a[3]-b[3]) < tol;
+}
+function floodFill(sx, sy, fillColor) {
+  const imgData = ctx.getImageData(0, 0, canvasW, canvasH);
+  const data = imgData.data;
+  const idx = (y, x) => (y * canvasW + x) * 4;
+  const targetColor = [data[idx(sy,sx)], data[idx(sy,sx)+1], data[idx(sy,sx)+2], data[idx(sy,sx)+3]];
+  if (colorsMatch(targetColor, fillColor, 5)) return;
+  const stack = [[sx, sy]];
+  const visited = new Uint8Array(canvasW * canvasH);
+  while (stack.length) {
+    const [x, y] = stack.pop();
+    if (x < 0 || x >= canvasW || y < 0 || y >= canvasH) continue;
+    if (visited[y*canvasW+x]) continue;
+    const i = idx(y, x);
+    if (!colorsMatch([data[i],data[i+1],data[i+2],data[i+3]], targetColor)) continue;
+    visited[y*canvasW+x] = 1;
+    data[i]=fillColor[0]; data[i+1]=fillColor[1]; data[i+2]=fillColor[2]; data[i+3]=fillColor[3];
+    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  }
+  ctx.putImageData(imgData, 0, 0);
+}
+
+/* ═══════════════════════════════════════════
+   EYEDROP / TEXT
+═══════════════════════════════════════════ */
+function pickColor(x, y) {
+  const p = ctx.getImageData(x, y, 1, 1).data;
+  const hex = '#' + [p[0],p[1],p[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+  setFgColor(hex);
+  document.getElementById('fgPicker').value = hex;
+  showNotice('색상 추출: ' + hex);
+}
+function addText(x, y) {
+  const t = prompt('텍스트 입력:', '😊');
+  if (!t) return;
+  saveUndo();
+  ctx.font = `bold ${brushSize * 3}px 'Segoe UI Emoji', sans-serif`;
+  ctx.fillStyle = fgColor;
+  ctx.globalAlpha = brushOpacity;
+  ctx.fillText(t, x, y);
+  ctx.globalAlpha = 1;
+  syncFrameThumb(); syncPreview();
+}
+
+/* ═══════════════════════════════════════════
+   COLOR
+═══════════════════════════════════════════ */
+const PALETTE = [
+  '#000000','#333333','#666666','#999999','#cccccc','#ffffff','#ff0000','#ff6600',
+  '#ffcc00','#ffff00','#00cc00','#00ffcc','#0066ff','#6600ff','#cc00ff','#ff0099',
+  '#ff9999','#ffcc99','#ffff99','#99ff99','#99ffff','#9999ff','#ff99ff','#ffcccc',
+  '#8B4513','#D2691E','#F4A460','#FAEBD7','#FFF8DC','#FFFACD','#F0FFF0','#E0FFFF',
+  '#FFE000','#F5A623','#7ED321','#417505','#9013FE','#4A90E2','#D0021B','#F5A623',
+  '#BD10E0','#9B9B9B','#50E3C2','#B8E986','#4A4A4A','#7B68EE','#FF69B4','#40E0D0',
+  '#FF6347','#00CED1','#9400D3','#FFD700','#ADFF2F','#7FFFD4','#DC143C','#00BFFF',
+  '#8A2BE2','#A52A2A','#DEB887','#5F9EA0','#7FFF00','#D2691E','#FF7F50','#6495ED',
+];
+function buildPalette() {
+  const g = document.getElementById('paletteGrid');
+  g.innerHTML = '';
+  PALETTE.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'pal-dot';
+    d.style.background = c;
+    d.title = c;
+    d.onclick = () => { setFgColor(c); document.getElementById('fgPicker').value = c; };
+    g.appendChild(d);
+  });
+}
+function setFgColor(hex) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return;
+  fgColor = hex;
+  document.getElementById('fgPreview').style.background = hex;
+  document.getElementById('hexInput').value = hex;
+  addRecentColor(hex);
+}
+function setBgColor(hex) {
+  bgColorVal = hex;
+  document.getElementById('bgPreview').style.background = hex;
+  document.getElementById('bgPreview').style.opacity = '1';
+}
+function onHexInput(v) {
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) setFgColor(v);
+}
+function addRecentColor(hex) {
+  if (recentColorsList.includes(hex)) return;
+  recentColorsList.unshift(hex);
+  if (recentColorsList.length > 10) recentColorsList.pop();
+  renderRecentColors();
+}
+function renderRecentColors() {
+  const el = document.getElementById('recentColors');
+  el.innerHTML = '';
+  recentColorsList.forEach(c => {
+    const d = document.createElement('div');
+    d.style.cssText = `width:22px;height:22px;border-radius:4px;background:${c};cursor:pointer;border:1px solid rgba(255,255,255,0.1)`;
+    d.onclick = () => { setFgColor(c); document.getElementById('fgPicker').value = c; };
+    el.appendChild(d);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   BRUSH SETTINGS
+═══════════════════════════════════════════ */
+function updateBrush() {
+  brushSize     = +document.getElementById('sizeSlider').value;
+  brushOpacity  = +document.getElementById('opacitySlider').value / 100;
+  brushHardness = +document.getElementById('hardnessSlider').value / 100;
+  document.getElementById('sizeVal').textContent    = brushSize;
+  document.getElementById('opacityVal').textContent = Math.round(brushOpacity*100);
+  document.getElementById('hardnessVal').textContent= Math.round(brushHardness*100);
+}
+function setBrushShape(s) {
+  brushShape = s;
+  document.querySelectorAll('.shape-btn').forEach(b => b.classList.toggle('active', b.dataset.shape === s));
+}
+
+/* ═══════════════════════════════════════════
+   FRAMES
+═══════════════════════════════════════════ */
+function makeFrameThumbCanvas(w, h) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h; return c;
+}
+function addFrame(fromImageData) {
+  const fc = makeFrameThumbCanvas(canvasW, canvasH);
+  if (fromImageData) fc.getContext('2d').putImageData(fromImageData, 0, 0);
+  frames.push(fc);
+  renderFrameStrip();
+  switchFrame(frames.length - 1);
+}
+function duplicateFrame() {
+  const src = frames[currentFrame];
+  const imgData = src.getContext('2d').getImageData(0, 0, canvasW, canvasH);
+  addFrame(imgData);
+}
+function deleteFrame(i) {
+  if (frames.length === 1) { showNotice('마지막 프레임은 삭제할 수 없습니다.'); return; }
+  frames.splice(i, 1);
+  if (currentFrame >= frames.length) currentFrame = frames.length - 1;
+  renderFrameStrip();
+  loadFrame(currentFrame);
+}
+function switchFrame(i) {
+  saveCurrentFrame();
+  currentFrame = i;
+  loadFrame(i);
+  renderFrameStrip();
+}
+function saveCurrentFrame() {
+  if (!frames[currentFrame]) return;
+  const fc = frames[currentFrame];
+  const fc2d = fc.getContext('2d');
+  fc2d.clearRect(0, 0, canvasW, canvasH);
+  fc2d.drawImage(mainCanvas, 0, 0);
+}
+function loadFrame(i) {
+  ctx.clearRect(0, 0, canvasW, canvasH);
+  ctx.drawImage(frames[i], 0, 0);
+  syncPreview();
+}
+function syncFrameThumb() {
+  saveCurrentFrame();
+  renderFrameStrip();
+}
+function renderFrameStrip() {
+  const strip = document.getElementById('framesStrip');
+  strip.innerHTML = '';
+  frames.forEach((fc, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'frame-thumb' + (i === currentFrame ? ' active' : '');
+    const tc = document.createElement('canvas');
+    tc.width = canvasW; tc.height = canvasH;
+    tc.style.width = '100%'; tc.style.height = 'auto';
+    const tctx = tc.getContext('2d');
+    // Draw checkerboard
+    const sz = 6;
+    for (let y=0;y<canvasH;y+=sz) for(let x=0;x<canvasW;x+=sz) {
+      tctx.fillStyle=(Math.floor(x/sz)+Math.floor(y/sz))%2===0?'#ccc':'#eee';
+      tctx.fillRect(x,y,sz,sz);
+    }
+    tctx.drawImage(fc, 0, 0);
+    const label = document.createElement('div');
+    label.className = 'frame-label';
+    label.innerHTML = `<span>프레임 ${i+1}</span><button class="frame-del" onclick="event.stopPropagation();deleteFrame(${i})">✕</button>`;
+    wrap.appendChild(tc);
+    wrap.appendChild(label);
+    wrap.onclick = () => switchFrame(i);
+    strip.appendChild(wrap);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   PREVIEW ANIMATION
+═══════════════════════════════════════════ */
+function syncPreview() {
+  previewCtx.clearRect(0, 0, canvasW, canvasH);
+  // checkerboard
+  const s=12;
+  for(let y=0;y<canvasH;y+=s)for(let x=0;x<canvasW;x+=s){
+    previewCtx.fillStyle=(Math.floor(x/s)+Math.floor(y/s))%2===0?'#ccc':'#eee';
+    previewCtx.fillRect(x,y,s,s);
+  }
+  previewCtx.drawImage(frames[currentFrame] || mainCanvas, 0, 0);
+}
+function togglePreviewPlay() {
+  previewPlaying = !previewPlaying;
+  document.getElementById('playBtn').textContent = previewPlaying ? '⏸' : '▶';
+  if (previewPlaying) runPreview(); else { clearInterval(previewTimer); previewTimer = null; }
+}
+function runPreview() {
+  clearInterval(previewTimer);
+  if (frames.length <= 1) { previewPlaying = false; document.getElementById('playBtn').textContent='▶'; return; }
+  previewTimer = setInterval(() => {
+    previewFrame = (previewFrame + 1) % frames.length;
+    previewCtx.clearRect(0,0,canvasW,canvasH);
+    const s=12;
+    for(let y=0;y<canvasH;y+=s)for(let x=0;x<canvasW;x+=s){
+      previewCtx.fillStyle=(Math.floor(x/s)+Math.floor(y/s))%2===0?'#ccc':'#eee';
+      previewCtx.fillRect(x,y,s,s);
+    }
+    previewCtx.drawImage(frames[previewFrame], 0, 0);
+  }, 1000 / fps);
+}
+function updateFPS() {
+  fps = +document.getElementById('fpsSlider').value;
+  document.getElementById('fpsVal').textContent = fps;
+  document.getElementById('previewFpsLabel').textContent = fps + ' fps';
+  if (previewPlaying) runPreview();
+}
+
+/* ═══════════════════════════════════════════
+   GRID / GUIDE
+═══════════════════════════════════════════ */
+function toggleGrid() {
+  showGrid = !showGrid;
+  document.getElementById('gridBtn').classList.toggle('active', showGrid);
+  initBg();
+}
+function toggleGuide() {
+  showGuide = !showGuide;
+  document.getElementById('guideBtn').classList.toggle('active', showGuide);
+  initBg();
+}
+
+/* ═══════════════════════════════════════════
+   CLEAR
+═══════════════════════════════════════════ */
+function clearCanvas() {
+  if (!confirm('현재 프레임을 모두 지울까요?')) return;
+  saveUndo();
+  ctx.clearRect(0, 0, canvasW, canvasH);
+  syncFrameThumb(); syncPreview();
+}
+
+/* ═══════════════════════════════════════════
+   CANVAS RESIZE
+═══════════════════════════════════════════ */
+function resizeCanvas(w, h) {
+  if (!confirm(`캔버스를 ${w}×${h}px로 변경하면 현재 내용이 초기화됩니다. 계속할까요?`)) return;
+  canvasW = w; canvasH = h;
+  [bgCanvas, mainCanvas, overlayCanvas].forEach(c => { c.width = w; c.height = h; });
+  previewCanvas.width = w; previewCanvas.height = h;
+  const wrapper = document.getElementById('canvasWrapper');
+  wrapper.style.width = w + 'px'; wrapper.style.height = h + 'px';
+  frames = [];
+  undoStack.length = 0; redoStack.length = 0;
+  initBg();
+  addFrame();
+  showNotice(`캔버스 크기: ${w}×${h}px`);
+}
+
+/* ═══════════════════════════════════════════
+   ZOOM (wheel)
+═══════════════════════════════════════════ */
+document.getElementById('canvasCenter').addEventListener('wheel', e => {
+  e.preventDefault();
+  zoom = Math.min(4, Math.max(0.25, zoom + (e.deltaY < 0 ? 0.1 : -0.1)));
+  const w = document.getElementById('canvasWrapper');
+  w.style.transform = `scale(${zoom})`;
+  document.getElementById('canvasInfo').textContent =
+    `${canvasW} × ${canvasH} px · 줌: ${Math.round(zoom*100)}%`;
+}, { passive: false });
+
+function updateInfo(x, y) {
+  document.getElementById('canvasInfo').textContent =
+    `${Math.round(x)}, ${Math.round(y)} px · 줌: ${Math.round(zoom*100)}%`;
+}
+
+/* ═══════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════ */
+function exportPNG() {
+  saveCurrentFrame();
+  const tmp = document.createElement('canvas');
+  tmp.width = canvasW; tmp.height = canvasH;
+  const tc = tmp.getContext('2d');
+  tc.drawImage(frames[currentFrame], 0, 0);
+  tmp.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `emoticon_frame${currentFrame+1}.png`;
+    a.click();
+    showNotice('PNG 저장 완료!');
+  });
+}
+
+// Simple GIF export using Uint8Array (very basic — real GIF requires lib)
+function exportGIF() {
+  showNotice('GIF: 각 프레임을 PNG로 개별 저장합니다.');
+  saveCurrentFrame();
+  frames.forEach((fc, i) => {
+    const tmp = document.createElement('canvas');
+    tmp.width = canvasW; tmp.height = canvasH;
+    tmp.getContext('2d').drawImage(fc, 0, 0);
+    tmp.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `emoticon_f${String(i+1).padStart(2,'0')}.png`;
+      a.click();
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+═══════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  const k = e.key.toLowerCase();
+  if (e.ctrlKey && k === 'z') { e.preventDefault(); undo(); return; }
+  if (e.ctrlKey && (k === 'y' || (e.shiftKey && k === 'z'))) { e.preventDefault(); redo(); return; }
+  if (k === 'p') setTool('pen');
+  if (k === 'b') setTool('brush');
+  if (k === 'e') setTool('eraser');
+  if (k === 'f') setTool('fill');
+  if (k === 'i') setTool('eyedrop');
+  if (k === 't') setTool('text');
+  if (k === 'g') toggleGrid();
+  if (k === '[') { const s=document.getElementById('sizeSlider'); s.value=Math.max(1,+s.value-2); updateBrush(); }
+  if (k === ']') { const s=document.getElementById('sizeSlider'); s.value=Math.min(60,+s.value+2); updateBrush(); }
+  if (k === 'arrowleft') { if(currentFrame>0) switchFrame(currentFrame-1); }
+  if (k === 'arrowright'){ if(currentFrame<frames.length-1) switchFrame(currentFrame+1); }
+});
+
+/* ═══════════════════════════════════════════
+   NOTICE
+═══════════════════════════════════════════ */
+let noticeTimer;
+function showNotice(msg) {
+  const el = document.getElementById('notice');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+function init() {
+  buildPalette();
+  setFgColor('#222222');
+  document.getElementById('fgPreview').style.background = '#222222';
+  document.getElementById('bgPreview').style.background = '#ffffff';
+  initBg();
+  // First frame
+  addFrame();
+  updateBrush();
+  showNotice('카카오 이모티콘 편집기에 오신 것을 환영합니다! 단축키: P=펜 B=브러시 E=지우개 F=채우기 I=스포이트 T=텍스트');
+}
+init();
+</script>
+</body>
+</html>

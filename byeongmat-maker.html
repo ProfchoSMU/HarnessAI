@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>병맛 이모티콘 메이커</title>
+<style>
+:root{
+  --bg:#111;--panel:#1a1a1a;--card:#242424;--border:#2e2e2e;
+  --accent:#FFE000;--accent2:#ff6b35;--text:#eee;--muted:#666;--r:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+
+/* ── TOP ── */
+.top{height:52px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;z-index:20}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;white-space:nowrap;margin-right:4px}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,#FFE000,#ff6b35);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.vsep{width:1px;height:26px;background:var(--border);margin:0 2px}
+.btn{padding:6px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:background .15s}
+.btn:hover{background:#2e2e2e}
+.btn.y{background:var(--accent);color:#000;border-color:var(--accent)}.btn.y:hover{background:#e6cc00}
+.btn.o{background:#ff6b35;color:#fff;border-color:#ff6b35}.btn.o:hover{background:#e55a25}
+.btn.g{background:#4caf50;color:#fff;border-color:#4caf50}.btn.g:hover{background:#3d9140}
+.btn.r{background:#e53935;color:#fff;border-color:#e53935}.btn.r:hover{background:#c62828}
+.top-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.pname{font-size:11px;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* style tabs */
+.style-tabs{display:flex;gap:4px}
+.stab{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.stab:hover{color:var(--text)}
+.stab.on{background:rgba(255,224,0,.15);border-color:var(--accent);color:var(--accent)}
+
+/* ── MAIN ── */
+.main{display:flex;flex:1;overflow:hidden}
+
+/* ── LEFT: tiles ── */
+.left{width:260px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.left-head{padding:10px 12px 6px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.left-head b{color:var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:4px 10px 10px;overflow-y:auto;flex:1}
+.tiles::-webkit-scrollbar{width:3px}.tiles::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.tile{position:relative;border:2px solid var(--border);border-radius:7px;overflow:hidden;cursor:pointer;aspect-ratio:1;background:#1a1a1a;transition:border-color .15s}
+.tile:hover{border-color:#555}
+.tile.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.tile canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.tile-lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:3px 5px 2px;font-size:8.5px;font-weight:700;color:#fff;line-height:1.3;pointer-events:none}
+.tile-q{position:absolute;top:2px;right:2px;background:var(--accent);color:#000;border:none;border-radius:3px;font-size:8px;font-weight:800;padding:1px 4px;cursor:pointer;opacity:0;transition:opacity .15s}
+.tile:hover .tile-q{opacity:1}
+
+/* ── CENTER ── */
+.center{flex:1;display:flex;flex-direction:column;background:#0c0c0c;overflow:hidden}
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+/* upload drop zone */
+.drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:10;transition:opacity .3s}
+.drop-zone.gone{opacity:0;pointer-events:none}
+.drop-circle{width:110px;height:110px;border-radius:50%;border:3px dashed #444;display:flex;align-items:center;justify-content:center;font-size:38px;cursor:pointer;transition:border-color .2s}
+.drop-circle:hover{border-color:var(--accent)}
+.drop-hint{color:var(--muted);font-size:13px}
+/* canvas stack */
+.cstack{position:relative;box-shadow:0 0 0 1px #333,0 4px 32px rgba(0,0,0,.7)}
+.cstack canvas{position:absolute;top:0;left:0;display:block}
+#cBase{position:relative;z-index:0}   /* cartoon photo */
+#cExpr{z-index:1;pointer-events:none} /* expression layer */
+#cOver{z-index:2}                     /* drawing / interaction */
+/* bottom bar */
+.bot-bar{height:50px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:7px;flex-shrink:0}
+.tb{width:30px;height:30px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tb:hover{background:var(--card);color:var(--text)}
+.tb.on{background:rgba(255,224,0,.15);border-color:var(--accent);color:var(--accent)}
+.colordot{width:26px;height:26px;border-radius:6px;border:2px solid #444;cursor:pointer;flex-shrink:0}
+.fnav{display:flex;align-items:center;gap:5px}
+.fnav button{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:5px;width:24px;height:24px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
+.fnav button:hover{background:#333}
+.fnav span{font-size:11px;color:var(--muted);min-width:52px;text-align:center}
+
+/* ── RIGHT ── */
+.right{width:238px;background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.right::-webkit-scrollbar{width:3px}.right::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.rs{padding:11px 13px;border-bottom:1px solid var(--border)}
+.rt{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+/* expression preset buttons */
+.expr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.exbtn{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 3px;text-align:center;cursor:pointer;font-size:10px;font-weight:600;transition:all .15s;line-height:1.4}
+.exbtn:hover{border-color:var(--accent);color:var(--accent)}
+.exbtn.on{background:rgba(255,224,0,.15);border-color:var(--accent);color:var(--accent)}
+.exbtn .ei{font-size:15px;display:block;margin-bottom:1px}
+/* text presets */
+.tpbtn{width:100%;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:7px 10px;cursor:pointer;font-size:12px;font-weight:700;text-align:left;transition:all .15s;display:flex;align-items:center;gap:7px;margin-bottom:4px;color:var(--text)}
+.tpbtn:hover{border-color:var(--accent)}
+/* stickers */
+.stick-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.stkbtn{aspect-ratio:1;border-radius:5px;border:1px solid var(--border);background:var(--card);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.stkbtn:hover{border-color:var(--accent);transform:scale(1.1)}
+.stkbtn.on{border-color:var(--accent);background:rgba(255,224,0,.12)}
+/* palette */
+.pal-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:8px}
+.pd{aspect-ratio:1;border-radius:3px;cursor:pointer;border:1px solid rgba(255,255,255,.06);transition:transform .1s}
+.pd:hover{transform:scale(1.2)}
+.hexrow{display:flex;gap:7px;align-items:center}
+.hxinp{flex:1;background:var(--card);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:11px;padding:5px 7px;font-family:monospace}
+.hxinp:focus{outline:none;border-color:var(--accent)}
+/* filter sliders */
+.slrow{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.sll{font-size:11px;color:var(--muted);width:44px}
+.slv{font-size:11px;color:var(--text);width:24px;text-align:right}
+.slrow input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--border);border-radius:2px;outline:none}
+.slrow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent);cursor:pointer}
+/* face position */
+.facepos-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.fpbtn{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:5px;cursor:pointer;font-size:10px;color:var(--muted);text-align:center;transition:all .15s}
+.fpbtn:hover{border-color:var(--accent);color:var(--accent)}
+/* auto gen bar */
+.gen-bar{padding:10px 12px}
+.gen-btn{width:100%;background:linear-gradient(135deg,var(--accent),#ff6b35);color:#000;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:800;cursor:pointer;transition:opacity .15s;margin-bottom:7px}
+.gen-btn:hover{opacity:.88}
+
+/* notice */
+.notice{position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:12px;z-index:999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+.notice.show{opacity:1;transform:translateY(0)}
+/* spinner */
+.spinner{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:16px;font-size:14px;color:#fff}
+.spinner.on{display:flex}
+.spin-ring{width:48px;height:48px;border:4px solid #333;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- TOP -->
+<div class="top">
+  <div class="logo"><div class="logo-icon">😜</div>병맛 이모티콘 메이커</div>
+  <div class="vsep"></div>
+  <button class="btn" onclick="triggerUpload()">📷 사진 업로드</button>
+  <span class="pname" id="pname">사진을 올려주세요</span>
+  <input type="file" id="fInput" accept="image/*" style="display:none" onchange="loadPhoto(event)">
+  <div class="vsep"></div>
+  <div class="style-tabs">
+    <button class="stab on" data-s="manga"   onclick="setStyle('manga')">만화체</button>
+    <button class="stab"    data-s="popart"  onclick="setStyle('popart')">팝아트</button>
+    <button class="stab"    data-s="pastel"  onclick="setStyle('pastel')">파스텔</button>
+    <button class="stab"    data-s="sketch"  onclick="setStyle('sketch')">스케치</button>
+  </div>
+  <div class="top-right">
+    <button class="btn o" onclick="autoGenAll()">⚡ 18개 자동 생성</button>
+    <button class="btn g" onclick="exportAll()">📦 전체 저장</button>
+    <button class="btn y" onclick="exportCurrent()">⬇ 현재 저장</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="left-head">이모티콘 <b id="cnt">0/18</b></div>
+    <div class="tiles" id="tilesGrid"></div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <div class="canvas-area" id="cArea">
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-circle" onclick="triggerUpload()">📷</div>
+        <div class="drop-hint">사진을 드래그하거나 클릭해서 업로드</div>
+      </div>
+      <div class="cstack" id="cstack" style="width:360px;height:360px">
+        <canvas id="cBase" width="360" height="360"></canvas>
+        <canvas id="cExpr" width="360" height="360"></canvas>
+        <canvas id="cOver" width="360" height="360"></canvas>
+      </div>
+    </div>
+    <div class="bot-bar">
+      <div class="fnav">
+        <button onclick="switchFrame(cur-1)">◀</button>
+        <span id="findicator">1 / 18</span>
+        <button onclick="switchFrame(cur+1)">▶</button>
+      </div>
+      <div class="vsep"></div>
+      <button class="tb on" data-t="pen"    onclick="setTool('pen')"    title="펜">✏️</button>
+      <button class="tb"    data-t="brush"  onclick="setTool('brush')"  title="브러시">🖌️</button>
+      <button class="tb"    data-t="eraser" onclick="setTool('eraser')" title="지우개">🧹</button>
+      <button class="tb"    data-t="text"   onclick="setTool('text')"   title="텍스트">T</button>
+      <button class="tb"    data-t="sticker" onclick="setTool('sticker')" title="스티커">★</button>
+      <div class="vsep"></div>
+      <label style="font-size:10px;color:var(--muted)">크기</label>
+      <input type="range" id="szSlider" min="1" max="50" value="8" oninput="brushSz=+this.value" style="width:64px;-webkit-appearance:none;height:3px;background:#333;border-radius:2px;outline:none">
+      <button class="tb" onclick="undoFrame()" title="실행취소">↩</button>
+      <button class="tb" onclick="clearOver()" title="그림 지우기">🗑</button>
+      <div class="colordot" id="cdot" style="background:#FFD700" onclick="document.getElementById('cpick').click()"></div>
+      <input type="color" id="cpick" value="#FFD700" style="display:none" oninput="setColor(this.value)">
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <div class="gen-bar">
+      <button class="gen-btn" onclick="autoGenAll()">⚡ 18개 자동 생성</button>
+      <button class="btn" style="width:100%;justify-content:center;font-size:12px" onclick="applyOneCurrent()">현재 프레임 자동 적용</button>
+    </div>
+
+    <!-- Expression -->
+    <div class="rs">
+      <div class="rt">표정 선택</div>
+      <div class="expr-grid" id="exprGrid"></div>
+    </div>
+
+    <!-- Text presets -->
+    <div class="rs">
+      <div class="rt">병맛 텍스트</div>
+      <div id="tpContainer"></div>
+    </div>
+
+    <!-- Stickers -->
+    <div class="rs">
+      <div class="rt">이모지 스티커</div>
+      <div class="stick-grid" id="stickerGrid"></div>
+    </div>
+
+    <!-- Color -->
+    <div class="rs">
+      <div class="rt">색상</div>
+      <div class="pal-grid" id="palGrid"></div>
+      <div class="hexrow">
+        <div class="colordot" id="cprev" style="background:#FFD700;width:30px;height:30px;border-radius:6px" onclick="document.getElementById('cpick').click()"></div>
+        <input class="hxinp" id="hxinp" value="#FFD700" maxlength="7" oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))setColor(this.value)">
+      </div>
+    </div>
+
+    <!-- Face zone -->
+    <div class="rs">
+      <div class="rt">얼굴 위치 조정</div>
+      <div class="slrow">
+        <span class="sll">Y 위치</span>
+        <input type="range" id="faceY" min="-60" max="60" value="0" oninput="faceOffY=+this.value;reApplyCurrent()">
+        <span class="slv" id="faceYv">0</span>
+      </div>
+      <div class="slrow">
+        <span class="sll">크기</span>
+        <input type="range" id="faceScale" min="60" max="150" value="100" oninput="faceScl=+this.value/100;reApplyCurrent()">
+        <span class="slv" id="faceScalev">100</span>
+      </div>
+    </div>
+
+    <!-- Illustration filter -->
+    <div class="rs">
+      <div class="rt">일러스트 필터 (현재)</div>
+      <div class="slrow">
+        <span class="sll">밝기</span>
+        <input type="range" id="slBr" min="0" max="200" value="100" oninput="updateFrameFilter()">
+        <span class="slv" id="brv">100</span>
+      </div>
+      <div class="slrow">
+        <span class="sll">대비</span>
+        <input type="range" id="slCo" min="0" max="300" value="100" oninput="updateFrameFilter()">
+        <span class="slv" id="cov">100</span>
+      </div>
+      <div class="slrow">
+        <span class="sll">채도</span>
+        <input type="range" id="slSa" min="0" max="300" value="130" oninput="updateFrameFilter()">
+        <span class="slv" id="sav">130</span>
+      </div>
+    </div>
+
+    <!-- Presets list -->
+    <div class="rs">
+      <div class="rt">프리셋 목록</div>
+      <div class="expr-grid" id="presetList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Spinner -->
+<div class="spinner" id="spinner"><div class="spin-ring"></div><span id="spinMsg">일러스트화 중...</span></div>
+<div class="notice" id="notice"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const W = 360, H = 360;
+
+const PRESETS = [
+  {name:'폭소',  emoji:'😂', text:'ㅋㅋㅋㅋㅋ',  tcolor:'#FFD700', tout:'#000', tpos:'bottom', expr:'happy'},
+  {name:'오열',  emoji:'😭', text:'ㅠㅠㅠㅠㅠ',  tcolor:'#88AAFF', tout:'#000', tpos:'bottom', expr:'cry'},
+  {name:'빡침',  emoji:'💢', text:'화나!!!!',     tcolor:'#FF3333', tout:'#fff', tpos:'top',    expr:'angry'},
+  {name:'헉',    emoji:'😱', text:'헉!!!!!!',     tcolor:'#FF8800', tout:'#000', tpos:'top',    expr:'shock'},
+  {name:'사랑',  emoji:'❤️', text:'사랑해♥',     tcolor:'#FF69B4', tout:'#fff', tpos:'bottom', expr:'love'},
+  {name:'졸림',  emoji:'💤', text:'zzzzz...',    tcolor:'#AAAAFF', tout:'#000', tpos:'top',    expr:'sleepy'},
+  {name:'당황',  emoji:'😰', text:'어?어?어?',   tcolor:'#88FF88', tout:'#000', tpos:'top',    expr:'panic'},
+  {name:'부끄',  emoji:'😳', text:'부끄부끄ㅠ',  tcolor:'#FFB6C1', tout:'#000', tpos:'bottom', expr:'blush'},
+  {name:'싫어',  emoji:'🙅', text:'절대싫어!!',   tcolor:'#FF3333', tout:'#fff', tpos:'center', expr:'no'},
+  {name:'화이팅',emoji:'💪', text:'화이팅!!',    tcolor:'#FFD700', tout:'#000', tpos:'bottom', expr:'cheer'},
+  {name:'안녕',  emoji:'👋', text:'안녕~!',      tcolor:'#88FFFF', tout:'#000', tpos:'bottom', expr:'hi'},
+  {name:'감사',  emoji:'🙏', text:'고마워!!!',   tcolor:'#FFCC00', tout:'#000', tpos:'bottom', expr:'thanks'},
+  {name:'미안',  emoji:'😓', text:'ㅈㅅㅈㅅ…',  tcolor:'#CCCCCC', tout:'#000', tpos:'top',    expr:'sorry'},
+  {name:'배고파',emoji:'🍔', text:'배고파~',     tcolor:'#FF8800', tout:'#000', tpos:'top',    expr:'hungry'},
+  {name:'의문',  emoji:'🤔', text:'뭐라고??',    tcolor:'#FFFF00', tout:'#000', tpos:'top',    expr:'confused'},
+  {name:'ㅇㅋ',  emoji:'👍', text:'ㅇㅋㅇㅋ!!', tcolor:'#44FF88', tout:'#000', tpos:'bottom', expr:'ok'},
+  {name:'대박',  emoji:'🌟', text:'대박이야!!',  tcolor:'#FFD700', tout:'#000', tpos:'top',    expr:'amazing'},
+  {name:'빠이',  emoji:'✌️', text:'빠이빠이~',   tcolor:'#88AAFF', tout:'#000', tpos:'bottom', expr:'bye'},
+];
+
+const STICKERS = ['😂','😭','😡','😱','❤️','💢','💤','😳','🙅','💪','🔥','💥','⭐','💦','✨','🌈','👊','🤣'];
+const PALETTE  = ['#FFD700','#FF6B35','#FF3333','#FF69B4','#FF8800','#FFFF00',
+                  '#88FF88','#00CC88','#88FFFF','#4A9EFF','#6666FF','#AA66FF',
+                  '#FFFFFF','#CCCCCC','#888888','#444444','#222222','#000000',
+                  '#FF99CC','#FFCC99','#CCFF99','#99FFCC','#99CCFF','#CC99FF'];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let sourceImg     = null;
+let cartoonCanvas = null;   // the cartoonized source (360x360)
+let artStyle      = 'manga';
+let cur           = 0;
+let activeTool    = 'pen';
+let brushSz       = 8;
+let fgColor       = '#FFD700';
+let activeStkr    = '😂';
+let isDrawing     = false;
+let lastX = 0, lastY = 0;
+let faceOffY      = 0;
+let faceScl       = 1.0;
+
+const frames = Array.from({length:18}, () => ({
+  drawCanvas: mkCanvas(W,H),
+  undoStack:  [],
+  filter:     {br:100, co:100, sa:130},
+}));
+
+function mkCanvas(w, h) {
+  const c = document.createElement('canvas'); c.width=w; c.height=h; return c;
+}
+
+/* ═══════════════════════════════════════════
+   CANVAS REFS
+═══════════════════════════════════════════ */
+const cBase = document.getElementById('cBase'); // cartoon photo layer
+const cExpr = document.getElementById('cExpr'); // expression layer
+const cOver = document.getElementById('cOver'); // user draw layer
+const ctxB  = cBase.getContext('2d');
+const ctxE  = cExpr.getContext('2d');
+const ctxO  = cOver.getContext('2d');
+
+/* ═══════════════════════════════════════════
+   CARTOON / ILLUSTRATION FILTER
+═══════════════════════════════════════════ */
+function applyStyle(style) {
+  artStyle = style;
+  document.querySelectorAll('.stab').forEach(b => b.classList.toggle('on', b.dataset.s === style));
+  if (sourceImg) { applyCartoon(); }
+}
+
+function applyCartoon() {
+  showSpinner('일러스트화 중...');
+  setTimeout(() => {
+    cartoonCanvas = mkCanvas(W, H);
+    const ctx = cartoonCanvas.getContext('2d');
+
+    // Draw source fitted into W x H
+    const sc = Math.max(W/sourceImg.width, H/sourceImg.height);
+    const sw = sourceImg.width*sc, sh = sourceImg.height*sc;
+    const sx = (W-sw)/2, sy = (H-sh)/2;
+    ctx.drawImage(sourceImg, sx, sy, sw, sh);
+
+    const imgData = ctx.getImageData(0, 0, W, H);
+
+    if (artStyle === 'manga')  cartoonManga(imgData);
+    else if (artStyle === 'popart') cartoonPopArt(imgData);
+    else if (artStyle === 'pastel') cartoonPastel(imgData);
+    else if (artStyle === 'sketch') cartoonSketch(imgData);
+
+    ctx.putImageData(imgData, 0, 0);
+    hideSpinner();
+    renderBase();
+    renderAllThumbs();
+    showNotice('일러스트 변환 완료! ⚡ 자동 생성을 눌러보세요');
+  }, 20);
+}
+
+/* ── MANGA: posterize + sobel edges ── */
+function cartoonManga(imgData) {
+  const d = imgData.data;
+  // 1. Posterize
+  posterize(d, 6);
+  // 2. Boost saturation
+  boostSat(d, 1.6);
+  // 3. Overlay edges
+  const gray = toGray(d, W, H);
+  const edges = sobel(gray, W, H);
+  for (let i=0,p=0; i<edges.length; i++,p+=4) {
+    if (edges[i] > 25) {
+      const t = Math.min(1, (edges[i]-25)/80);
+      d[p]   = d[p]   * (1-t);
+      d[p+1] = d[p+1] * (1-t);
+      d[p+2] = d[p+2] * (1-t);
+    }
+  }
+}
+
+/* ── POP ART: 3-level posterize, vivid ── */
+function cartoonPopArt(imgData) {
+  const d = imgData.data;
+  posterize(d, 3);
+  boostSat(d, 2.5);
+  boostContrast(d, 1.6);
+  const gray = toGray(d, W, H);
+  const edges = sobel(gray, W, H);
+  for (let i=0,p=0; i<edges.length; i++,p+=4) {
+    if (edges[i] > 20) {
+      d[p]=0; d[p+1]=0; d[p+2]=0;
+    }
+  }
+}
+
+/* ── PASTEL: soft posterize, gentle edges ── */
+function cartoonPastel(imgData) {
+  const d = imgData.data;
+  boxBlur(d, W, H, 1);
+  posterize(d, 8);
+  // Mix towards white (lighten)
+  for (let p=0; p<d.length; p+=4) {
+    d[p]   = d[p]  *0.7 + 255*0.3;
+    d[p+1] = d[p+1]*0.7 + 255*0.3;
+    d[p+2] = d[p+2]*0.7 + 255*0.3;
+  }
+  boostSat(d, 1.2);
+  const gray = toGray(d, W, H);
+  const edges = sobel(gray, W, H);
+  for (let i=0,p=0; i<edges.length; i++,p+=4) {
+    if (edges[i] > 40) {
+      const t = Math.min(.6, (edges[i]-40)/100);
+      d[p]   = d[p]  *(1-t);
+      d[p+1] = d[p+1]*(1-t);
+      d[p+2] = d[p+2]*(1-t);
+    }
+  }
+}
+
+/* ── SKETCH: grayscale + pencil lines ── */
+function cartoonSketch(imgData) {
+  const d = imgData.data;
+  boxBlur(d, W, H, 1);
+  const gray = toGray(d, W, H);
+  const edges = sobel(gray, W, H);
+  for (let i=0,p=0; i<gray.length; i++,p+=4) {
+    const bg = Math.min(255, gray[i] * 1.1 + 30);  // light grey bg
+    const e  = Math.min(255, edges[i] * 2.5);
+    const v  = Math.max(0, bg - e);
+    d[p]=v; d[p+1]=v; d[p+2]=v;
+  }
+}
+
+/* ── Helpers ── */
+function posterize(d, levels) {
+  const step = 256/levels;
+  for (let p=0; p<d.length; p+=4) {
+    d[p]  = Math.round(d[p]  /step)*step|0;
+    d[p+1]= Math.round(d[p+1]/step)*step|0;
+    d[p+2]= Math.round(d[p+2]/step)*step|0;
+  }
+}
+function boostContrast(d, f) {
+  for (let p=0; p<d.length; p+=4) {
+    d[p]  = clamp(((d[p]  /255-0.5)*f+0.5)*255);
+    d[p+1]= clamp(((d[p+1]/255-0.5)*f+0.5)*255);
+    d[p+2]= clamp(((d[p+2]/255-0.5)*f+0.5)*255);
+  }
+}
+function boostSat(d, f) {
+  for (let p=0; p<d.length; p+=4) {
+    const r=d[p]/255, g=d[p+1]/255, b=d[p+2]/255;
+    const mx=Math.max(r,g,b), mn=Math.min(r,g,b), l=(mx+mn)/2;
+    if (mx===mn) continue;
+    const diff=mx-mn;
+    let s = l>0.5 ? diff/(2-mx-mn) : diff/(mx+mn);
+    s = Math.min(1, s*f);
+    let h;
+    if      (mx===r) h=((g-b)/diff + (g<b?6:0))/6;
+    else if (mx===g) h=((b-r)/diff + 2)/6;
+    else             h=((r-g)/diff + 4)/6;
+    const q = l<0.5 ? l*(1+s) : l+s-l*s, pp=2*l-q;
+    function hq(t){t=t<0?t+1:t>1?t-1:t;return t<1/6?pp+(q-pp)*6*t:t<.5?q:t<2/3?pp+(q-pp)*(2/3-t)*6:pp}
+    d[p]  = clamp(hq(h+1/3)*255);
+    d[p+1]= clamp(hq(h)*255);
+    d[p+2]= clamp(hq(h-1/3)*255);
+  }
+}
+function toGray(d, w, h) {
+  const g = new Float32Array(w*h);
+  for (let i=0,p=0; i<g.length; i++,p+=4)
+    g[i] = d[p]*.299 + d[p+1]*.587 + d[p+2]*.114;
+  return g;
+}
+function sobel(g, w, h) {
+  const out = new Float32Array(w*h);
+  for (let y=1; y<h-1; y++) for (let x=1; x<w-1; x++) {
+    const tl=g[(y-1)*w+x-1], tm=g[(y-1)*w+x], tr=g[(y-1)*w+x+1];
+    const ml=g[y*w+x-1],                        mr=g[y*w+x+1];
+    const bl=g[(y+1)*w+x-1], bm=g[(y+1)*w+x], br=g[(y+1)*w+x+1];
+    const gx = -tl-2*ml-bl + tr+2*mr+br;
+    const gy = -tl-2*tm-tr + bl+2*bm+br;
+    out[y*w+x] = Math.sqrt(gx*gx+gy*gy);
+  }
+  return out;
+}
+function boxBlur(d, w, h, r) {
+  const tmp = new Uint8ClampedArray(d.length);
+  for (let y=0; y<h; y++) for (let x=0; x<w; x++) {
+    let sr=0,sg=0,sb=0,n=0;
+    for (let dy=-r;dy<=r;dy++) for (let dx=-r;dx<=r;dx++) {
+      const ny=Math.max(0,Math.min(h-1,y+dy)), nx=Math.max(0,Math.min(w-1,x+dx));
+      const p=(ny*w+nx)*4; sr+=d[p];sg+=d[p+1];sb+=d[p+2];n++;
+    }
+    const p=(y*w+x)*4; tmp[p]=sr/n; tmp[p+1]=sg/n; tmp[p+2]=sb/n; tmp[p+3]=d[p+3];
+  }
+  d.set(tmp);
+}
+function clamp(v){return v<0?0:v>255?255:v|0}
+
+/* ═══════════════════════════════════════════
+   EXPRESSION DRAWING
+═══════════════════════════════════════════ */
+// Face reference points relative to canvas
+const FP = {
+  eyeL:  {x:0.34, y:0.38},
+  eyeR:  {x:0.66, y:0.38},
+  mouth: {x:0.50, y:0.67},
+  cheekL:{x:0.22, y:0.55},
+  cheekR:{x:0.78, y:0.55},
+  nose:  {x:0.50, y:0.52},
+  brow:  {x:0.50, y:0.28},
+};
+
+function fp(key, axis) {
+  const pt = FP[key];
+  const cx = W/2, cy = H/2;
+  if (axis==='x') return pt.x*W;
+  const raw = pt.y*H;
+  return cy + (raw - cy)*faceScl + faceOffY;
+}
+function ew() { return 26*faceScl; } // eye "radius"
+
+function drawExpr(ctx, type) {
+  ctx.clearRect(0,0,W,H);
+  switch(type) {
+    case 'happy':    exHappy(ctx);    break;
+    case 'cry':      exCry(ctx);      break;
+    case 'angry':    exAngry(ctx);    break;
+    case 'shock':    exShock(ctx);    break;
+    case 'love':     exLove(ctx);     break;
+    case 'sleepy':   exSleepy(ctx);   break;
+    case 'panic':    exPanic(ctx);    break;
+    case 'blush':    exBlush(ctx);    break;
+    case 'no':       exNo(ctx);       break;
+    case 'cheer':    exCheer(ctx);    break;
+    case 'hi':       exHi(ctx);       break;
+    case 'thanks':   exThanks(ctx);   break;
+    case 'sorry':    exSorry(ctx);    break;
+    case 'hungry':   exHungry(ctx);   break;
+    case 'confused': exConfused(ctx); break;
+    case 'ok':       exOk(ctx);       break;
+    case 'amazing':  exAmazing(ctx);  break;
+    case 'bye':      exBye(ctx);      break;
+  }
+}
+
+function eyeBase(ctx, lw=4) {
+  ctx.lineWidth=lw; ctx.lineCap='round'; ctx.strokeStyle='#000';
+}
+function fillCircle(ctx, x, y, r, color) {
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+}
+
+/* ── HAPPY ^^ ── */
+function exHappy(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,5);
+  for (const ex of [lx,rx]) {
+    ctx.beginPath();
+    ctx.arc(ex, ey+es*0.4, es, Math.PI*1.05, Math.PI*1.95);
+    ctx.stroke();
+  }
+  // Smile
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  ctx.beginPath(); ctx.arc(mx,my-es*0.3,es*1.6,0.15,Math.PI-0.15); ctx.stroke();
+  // Rosy cheeks
+  for (const [cx,cy] of [[fp('cheekL','x'),fp('cheekL','y')],[fp('cheekR','x'),fp('cheekR','y')]]) {
+    ctx.globalAlpha=0.35;
+    fillCircle(ctx,cx,cy,es*1.1,'#FF8080');
+    ctx.globalAlpha=1;
+  }
+}
+
+/* ── CRY T_T ── */
+function exCry(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  // Eyes: half circles pointing down
+  eyeBase(ctx,5);
+  for (const ex of [lx,rx]) {
+    ctx.beginPath(); ctx.arc(ex,ey-es*0.3,es,0.1,Math.PI-0.1); ctx.stroke();
+  }
+  // Tears
+  ctx.fillStyle='#5599FF';
+  for (const ex of [lx,rx]) {
+    for (let i=0;i<3;i++) {
+      ctx.globalAlpha=0.8-i*0.2;
+      ctx.beginPath();
+      ctx.ellipse(ex+(i-1)*es*0.4, ey+es*(0.8+i*0.9), es*0.28, es*0.5, 0,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha=1;
+  // Frown
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,5);
+  ctx.beginPath(); ctx.arc(mx,my+es*0.6,es*1.4,Math.PI+0.2,Math.PI*2-0.2); ctx.stroke();
+}
+
+/* ── ANGRY >< ── */
+function exAngry(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  // Angled slant brows
+  eyeBase(ctx,7);
+  ctx.strokeStyle='#CC0000';
+  ctx.beginPath();ctx.moveTo(lx-es,ey-es*0.8);ctx.lineTo(lx+es*0.5,ey-es*0.2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rx+es,ey-es*0.8);ctx.lineTo(rx-es*0.5,ey-es*0.2);ctx.stroke();
+  // Small squinting eyes
+  eyeBase(ctx,4); ctx.strokeStyle='#000';
+  for (const ex of [lx,rx]) {
+    ctx.beginPath(); ctx.moveTo(ex-es*0.7,ey+es*0.2);ctx.lineTo(ex+es*0.7,ey+es*0.2); ctx.stroke();
+  }
+  // Zigzag mouth
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  ctx.strokeStyle='#CC0000'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(mx-es*1.5,my);
+  for (let i=0;i<6;i++) ctx.lineTo(mx-es*1.5+es*0.5*(i+1), my+(i%2===0?es*0.5:-es*0.5));
+  ctx.stroke();
+  // Anger vein
+  ctx.globalAlpha=0.9;
+  drawAngerVein(ctx, fp('brow','x')+es*1.5, fp('brow','y')-10, es*0.8);
+  ctx.globalAlpha=1;
+}
+function drawAngerVein(ctx, x, y, s) {
+  ctx.strokeStyle='#FF0000'; ctx.lineWidth=3; ctx.lineCap='round';
+  const pts=[[0,-1],[0.6,0],[0,1],[-0.6,0],[0,-1]];
+  ctx.beginPath(); ctx.moveTo(x+pts[0][0]*s,y+pts[0][1]*s);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(x+pts[i][0]*s,y+pts[i][1]*s);
+  ctx.stroke();
+}
+
+/* ── SHOCK O_O ── */
+function exShock(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,4);
+  for (const ex of [lx,rx]) {
+    fillCircle(ctx,ex,ey,es*1.1,'#fff');
+    ctx.beginPath(); ctx.arc(ex,ey,es*1.1,0,Math.PI*2); ctx.stroke();
+    fillCircle(ctx,ex,ey,es*0.45,'#222');
+    fillCircle(ctx,ex-es*0.2,ey-es*0.2,es*0.18,'#fff');
+  }
+  // O mouth
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  fillCircle(ctx,mx,my,es*0.9,'#333');
+  eyeBase(ctx,4);
+  ctx.beginPath(); ctx.arc(mx,my,es*0.9,0,Math.PI*2); ctx.stroke();
+  // Sweat drop
+  sweatDrop(ctx, fp('cheekR','x')+es, fp('eyeR','y')-es, es*0.7);
+  // Speed lines
+  ctx.globalAlpha=0.3;
+  for (let a=0;a<12;a++) {
+    const angle=a*Math.PI/6;
+    ctx.strokeStyle='#888'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(W/2+Math.cos(angle)*es*3,H/2+Math.sin(angle)*es*3);
+    ctx.lineTo(W/2+Math.cos(angle)*W*0.6,H/2+Math.sin(angle)*W*0.6); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+function sweatDrop(ctx,x,y,r) {
+  ctx.fillStyle='#5599FF'; ctx.globalAlpha=0.9;
+  ctx.beginPath(); ctx.moveTo(x,y-r*1.5); ctx.quadraticCurveTo(x+r,y,x,y+r*0.5);
+  ctx.quadraticCurveTo(x-r,y,x,y-r*1.5); ctx.fill();
+  ctx.globalAlpha=1;
+}
+
+/* ── LOVE ♥♥ ── */
+function exLove(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  // Heart eyes
+  for (const ex of [lx,rx]) drawHeart(ctx,ex,ey,es*1.1,'#FF3366');
+  // Blush + kiss
+  ctx.globalAlpha=0.4;
+  for (const [cx,cy] of [[fp('cheekL','x'),fp('cheekL','y')],[fp('cheekR','x'),fp('cheekR','y')]]) {
+    fillCircle(ctx,cx,cy,es*1.2,'#FF69B4');
+  }
+  ctx.globalAlpha=1;
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,4);
+  ctx.beginPath(); ctx.arc(mx,my-es*0.2,es*0.9,0.2,Math.PI-0.2); ctx.stroke();
+  // floating hearts
+  for (const [hx,hy,hs] of [[lx-es*2,ey-es*2,es*0.6],[rx+es*1.5,ey-es*2.5,es*0.8],[mx,fp('mouth','y')-es*3.5,es*0.5]]) {
+    drawHeart(ctx,hx,hy,hs,'#FF3366');
+  }
+}
+function drawHeart(ctx,x,y,s,color) {
+  ctx.save(); ctx.translate(x,y); ctx.fillStyle=color;
+  ctx.beginPath(); ctx.moveTo(0,s*0.4);
+  ctx.bezierCurveTo(-s*1.6,-s*0.7,-s*2.2,s*0.5,0,s*1.6);
+  ctx.bezierCurveTo(s*2.2,s*0.5,s*1.6,-s*0.7,0,s*0.4);
+  ctx.fill(); ctx.restore();
+}
+
+/* ── SLEEPY -.- ── */
+function exSleepy(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,5);
+  for (const ex of [lx,rx]) {
+    ctx.beginPath(); ctx.moveTo(ex-es,ey+es*0.1); ctx.lineTo(ex+es,ey+es*0.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ex-es*0.7,ey-es*0.2); ctx.lineTo(ex+es*0.7,ey-es*0.2); ctx.stroke();
+  }
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,4);
+  ctx.beginPath(); ctx.arc(mx,my-es*0.2,es*0.8,0.3,Math.PI-0.3); ctx.stroke();
+  // ZZZ bubbles
+  ctx.font='bold 22px sans-serif'; ctx.fillStyle='#AAAAFF'; ctx.strokeStyle='#fff'; ctx.lineWidth=3;
+  for (const [tx,ty,ts] of [[rx+es*1.5,ey-es*1.5,'Z'],[rx+es*2.5,ey-es*3,'Z'],[rx+es*3.8,ey-es*4.5,'Z']]) {
+    ctx.strokeText(ts,tx,ty); ctx.fillText(ts,tx,ty);
+  }
+}
+
+/* ── PANIC ── */
+function exPanic(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,4);
+  for (const ex of [lx,rx]) {
+    fillCircle(ctx,ex,ey,es,'#fff');
+    ctx.beginPath(); ctx.arc(ex,ey,es,0,Math.PI*2); ctx.stroke();
+    fillCircle(ctx,ex+es*0.3,ey+es*0.2,es*0.4,'#222');
+  }
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,4);
+  ctx.beginPath(); ctx.arc(mx,my,es*0.7,0,Math.PI*2); ctx.stroke();
+  // ? marks
+  ctx.font='bold 28px sans-serif'; ctx.fillStyle='#88FF88'; ctx.strokeStyle='#000'; ctx.lineWidth=4;
+  for (const [tx,ty] of [[lx-es*2,ey-es*2.5],[rx+es*1.5,ey-es*2],[mx,fp('mouth','y')+es*2]]) {
+    ctx.strokeText('?',tx,ty); ctx.fillText('?',tx,ty);
+  }
+  sweatDrop(ctx,fp('cheekL','x')-es*0.3,fp('cheekL','y')-es, es*0.65);
+}
+
+/* ── BLUSH // ── */
+function exBlush(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,4);
+  // Downward curves (looking away)
+  for (const ex of [lx,rx]) {
+    ctx.beginPath(); ctx.arc(ex,ey-es*0.4,es,0.15,Math.PI-0.15); ctx.stroke();
+  }
+  ctx.globalAlpha=0.5;
+  for (const [cx,cy] of [[fp('cheekL','x'),fp('cheekL','y')],[fp('cheekR','x'),fp('cheekR','y')]]) {
+    fillCircle(ctx,cx,cy,es*1.4,'#FF6699');
+  }
+  ctx.globalAlpha=1;
+  // Small shy smile
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,4);
+  ctx.beginPath(); ctx.arc(mx,my-es*0.2,es*0.9,0.2,Math.PI-0.2); ctx.stroke();
+  // // lines on cheeks (blush lines)
+  ctx.strokeStyle='#FF69B4'; ctx.lineWidth=2;
+  for (const [cx,cy] of [[fp('cheekL','x'),fp('cheekL','y')],[fp('cheekR','x'),fp('cheekR','y')]]) {
+    for (let i=-1;i<=1;i++) {
+      ctx.beginPath(); ctx.moveTo(cx-es*0.5,cy+i*es*0.3); ctx.lineTo(cx+es*0.5,cy+i*es*0.3); ctx.stroke();
+    }
+  }
+}
+
+/* ── NO 절대싫어 ── */
+function exNo(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,5); ctx.strokeStyle='#CC0000';
+  for (const ex of [lx,rx]) {
+    ctx.beginPath(); ctx.moveTo(ex-es,ey-es); ctx.lineTo(ex+es,ey+es); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ex+es,ey-es); ctx.lineTo(ex-es,ey+es); ctx.stroke();
+  }
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,5); ctx.strokeStyle='#CC0000';
+  ctx.beginPath(); ctx.moveTo(mx-es*1.5,my); ctx.lineTo(mx+es*1.5,my); ctx.stroke();
+  // Big X overlay
+  ctx.globalAlpha=0.15;
+  ctx.strokeStyle='#FF0000'; ctx.lineWidth=30;
+  ctx.beginPath(); ctx.moveTo(20,20); ctx.lineTo(W-20,H-20); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W-20,20); ctx.lineTo(20,H-20); ctx.stroke();
+  ctx.globalAlpha=1;
+}
+
+/* ── CHEER ── */
+function exCheer(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,5);
+  for (const ex of [lx,rx]) {
+    ctx.beginPath(); ctx.arc(ex,ey+es*0.3,es,Math.PI*1.1,Math.PI*1.9); ctx.stroke();
+  }
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,5);
+  ctx.beginPath(); ctx.arc(mx,my-es*0.4,es*1.5,0.1,Math.PI-0.1); ctx.stroke();
+  // Stars
+  ctx.font='24px serif';
+  for (const [tx,ty] of [[lx-es*2,ey-es*2],[rx+es*1.5,ey-es*2],[mx,fp('mouth','y')+es*2.5]]) {
+    ctx.fillText('⭐',tx-12,ty+12);
+  }
+}
+
+/* ── HI ── */
+function exHi(ctx) {
+  exHappy(ctx);
+  // Extra sparkles
+  ctx.font='20px serif';
+  for (const [tx,ty] of [[30,40],[W-50,50],[30,H-50],[W-40,H-40]]) {
+    ctx.fillText('✨',tx,ty);
+  }
+}
+
+/* ── THANKS ── */
+function exThanks(ctx) {
+  exBlush(ctx);
+  // Clasped hands below
+  ctx.font='36px serif'; ctx.textAlign='center';
+  ctx.fillText('🙏', fp('mouth','x'), fp('mouth','y')+ew()*3);
+}
+
+/* ── SORRY ── */
+function exSorry(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,5);
+  // T_T eyes
+  for (const ex of [lx,rx]) {
+    ctx.beginPath(); ctx.arc(ex,ey-es*0.2,es,0.1,Math.PI-0.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ex,ey+es); ctx.lineTo(ex,ey+es*2.5); ctx.stroke();
+  }
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,5);
+  ctx.beginPath(); ctx.arc(mx,my+es*0.5,es*1.3,Math.PI+0.2,Math.PI*2-0.2); ctx.stroke();
+}
+
+/* ── HUNGRY ── */
+function exHungry(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  eyeBase(ctx,5);
+  for (const ex of [lx,rx]) {
+    ctx.beginPath(); ctx.arc(ex,ey+es*0.3,es,Math.PI*1.05,Math.PI*1.95); ctx.stroke();
+  }
+  // Drool
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,5);
+  ctx.beginPath(); ctx.arc(mx,my-es*0.3,es*1.4,0.1,Math.PI-0.1); ctx.stroke();
+  ctx.fillStyle='#88CCFF'; ctx.globalAlpha=0.85;
+  ctx.beginPath(); ctx.ellipse(mx-es*0.5,my+es*1.5,es*0.35,es*0.8,0.2,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha=1;
+  ctx.font='28px serif'; ctx.fillText('🍔',fp('cheekR','x')+es*0.5,fp('cheekR','y')-es*1.5);
+}
+
+/* ── CONFUSED ── */
+function exConfused(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  // One normal eye, one spiral/squint
+  fillCircle(ctx,lx,ey,es,'#fff');
+  eyeBase(ctx,3); ctx.beginPath(); ctx.arc(lx,ey,es,0,Math.PI*2); ctx.stroke();
+  fillCircle(ctx,lx,ey,es*0.45,'#222');
+  // Squinted right eye
+  eyeBase(ctx,5);
+  ctx.beginPath(); ctx.arc(rx,ey+es*0.3,es,Math.PI*1.05,Math.PI*1.95); ctx.stroke();
+  // Raised left brow
+  ctx.strokeStyle='#000'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(lx-es,ey-es*1.2); ctx.quadraticCurveTo(lx,ey-es*1.8,lx+es,ey-es*1.1); ctx.stroke();
+  // Wavy mouth
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,4);
+  ctx.beginPath(); ctx.moveTo(mx-es*1.5,my);
+  ctx.quadraticCurveTo(mx-es*0.5,my-es*0.6,mx,my);
+  ctx.quadraticCurveTo(mx+es*0.5,my+es*0.6,mx+es*1.5,my); ctx.stroke();
+  // ? mark
+  ctx.font='bold 32px sans-serif'; ctx.fillStyle='#FFFF00'; ctx.strokeStyle='#000'; ctx.lineWidth=5;
+  ctx.strokeText('?',rx+es*1.5,ey-es*2); ctx.fillText('?',rx+es*1.5,ey-es*2);
+}
+
+/* ── OK ── */
+function exOk(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  // Wink right eye
+  eyeBase(ctx,5);
+  ctx.beginPath(); ctx.arc(lx,ey+es*0.3,es,Math.PI*1.1,Math.PI*1.9); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rx-es,ey); ctx.lineTo(rx+es,ey); ctx.stroke();
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,5);
+  ctx.beginPath(); ctx.arc(mx,my-es*0.2,es*1.4,0.1,Math.PI-0.1); ctx.stroke();
+  // Thumb up
+  ctx.font='32px serif'; ctx.fillText('👍',fp('cheekR','x')+es*0.5,fp('cheekR','y')+es);
+}
+
+/* ── AMAZING ── */
+function exAmazing(ctx) {
+  const lx=fp('eyeL','x'), rx=fp('eyeR','x'), ey=fp('eyeL','y'), es=ew();
+  // Star eyes
+  for (const ex of [lx,rx]) drawStar5(ctx,ex,ey,es*1.1,'#FFD700');
+  const mx=fp('mouth','x'), my=fp('mouth','y');
+  eyeBase(ctx,5);
+  ctx.beginPath(); ctx.arc(mx,my-es*0.4,es*1.6,0.1,Math.PI-0.1); ctx.stroke();
+  // Rays/sparkles everywhere
+  ctx.font='22px serif';
+  for (const [tx,ty] of [[40,50],[W-60,40],[40,H-50],[W-50,H-60],[mx-es*3,ey-es*3],[mx+es*2.5,ey-es*4]]) {
+    ctx.fillText('✨',tx,ty);
+  }
+}
+function drawStar5(ctx,cx,cy,r,color) {
+  ctx.save(); ctx.translate(cx,cy); ctx.fillStyle=color; ctx.strokeStyle='#FF8800'; ctx.lineWidth=2;
+  ctx.beginPath();
+  for(let i=0;i<5;i++){
+    const a=i*Math.PI*2/5-Math.PI/2, b=a+Math.PI/5;
+    if(i===0)ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+    else ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);
+    ctx.lineTo(Math.cos(b)*r*0.4,Math.sin(b)*r*0.4);
+  }
+  ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+}
+
+/* ── BYE ── */
+function exBye(ctx) {
+  exHappy(ctx);
+  // Wave emoji + dots
+  ctx.font='34px serif'; ctx.fillText('👋',fp('cheekL','x')-es*0.5,fp('cheekL','y')+ew()*1.5);
+}
+
+function ew(){return 26*faceScl}
+
+/* ═══════════════════════════════════════════
+   TEXT RENDERING (BYEONGMAT STYLE)
+═══════════════════════════════════════════ */
+function drawBoldText(ctx, text, x, y, size, fill, stroke, maxW) {
+  ctx.save();
+  ctx.font = `900 ${size}px Impact,"Arial Black","Malgun Gothic Bold",sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.lineJoin='round'; ctx.lineWidth=size*0.2;
+  ctx.strokeStyle=stroke; ctx.strokeText(text,x,y,maxW);
+  ctx.fillStyle=fill; ctx.fillText(text,x,y,maxW);
+  ctx.restore();
+}
+
+/* ═══════════════════════════════════════════
+   FRAME RENDER PIPELINE
+═══════════════════════════════════════════ */
+function renderBase() {
+  const frame = frames[cur];
+  ctxB.clearRect(0,0,W,H);
+  // checkerboard
+  for(let y=0;y<H;y+=14)for(let x=0;x<W;x+=14){
+    ctxB.fillStyle=(Math.floor(x/14)+Math.floor(y/14))%2===0?'#222':'#1a1a1a';
+    ctxB.fillRect(x,y,14,14);
+  }
+  if (cartoonCanvas) {
+    ctxB.save();
+    ctxB.filter=`brightness(${frame.filter.br}%) contrast(${frame.filter.co}%) saturate(${frame.filter.sa}%)`;
+    ctxB.drawImage(cartoonCanvas,0,0);
+    ctxB.filter='none';
+    ctxB.restore();
+  }
+}
+
+function renderExprLayer(frameIdx) {
+  // Re-draw expression for current frame if it has one stored
+  // (expressions are stored in drawCanvas)
+}
+
+function compositeForExport(frameIdx) {
+  const frame = frames[frameIdx];
+  const tmp = mkCanvas(W,H);
+  const tc = tmp.getContext('2d');
+  if (cartoonCanvas) {
+    tc.save();
+    tc.filter=`brightness(${frame.filter.br}%) contrast(${frame.filter.co}%) saturate(${frame.filter.sa}%)`;
+    tc.drawImage(cartoonCanvas,0,0);
+    tc.filter='none';
+    tc.restore();
+  }
+  tc.drawImage(frame.drawCanvas,0,0);
+  return tmp;
+}
+
+function renderThumb(idx) {
+  const tile = document.querySelector(`.tile[data-id="${idx}"]`);
+  if (!tile) return;
+  const tc = tile.querySelector('canvas').getContext('2d');
+  const frame = frames[idx];
+  tc.clearRect(0,0,W,H);
+  for(let y=0;y<H;y+=18)for(let x=0;x<W;x+=18){
+    tc.fillStyle=(Math.floor(x/18)+Math.floor(y/18))%2===0?'#222':'#1a1a1a';
+    tc.fillRect(x,y,18,18);
+  }
+  if (cartoonCanvas) {
+    tc.save();
+    tc.filter=`brightness(${frame.filter.br}%) contrast(${frame.filter.co}%) saturate(${frame.filter.sa}%)`;
+    tc.drawImage(cartoonCanvas,0,0);
+    tc.filter='none';
+    tc.restore();
+  }
+  tc.drawImage(frame.drawCanvas,0,0);
+}
+function renderAllThumbs(){for(let i=0;i<18;i++)renderThumb(i);}
+
+/* ═══════════════════════════════════════════
+   FRAME SWITCH
+═══════════════════════════════════════════ */
+function switchFrame(idx) {
+  idx = Math.max(0, Math.min(17, idx));
+  cur = idx;
+  document.querySelectorAll('.tile').forEach(t=>t.classList.toggle('on',+t.dataset.id===idx));
+  document.querySelectorAll('.exbtn').forEach(b=>b.classList.toggle('on',+b.dataset.fi===idx));
+  document.querySelectorAll('#presetList .exbtn').forEach(b=>b.classList.toggle('on',+b.dataset.id===idx));
+  document.getElementById('findicator').textContent=`${idx+1} / 18`;
+  const f=frames[idx].filter;
+  document.getElementById('slBr').value=f.br; document.getElementById('brv').textContent=f.br;
+  document.getElementById('slCo').value=f.co; document.getElementById('cov').textContent=f.co;
+  document.getElementById('slSa').value=f.sa; document.getElementById('sav').textContent=f.sa;
+  renderBase();
+  ctxO.clearRect(0,0,W,H);
+  ctxO.drawImage(frames[idx].drawCanvas,0,0);
+}
+
+/* ═══════════════════════════════════════════
+   AUTO GENERATE EMOTICONS
+═══════════════════════════════════════════ */
+function generateFrame(idx) {
+  const frame  = frames[idx];
+  const preset = PRESETS[idx];
+  const dc     = frame.drawCanvas.getContext('2d');
+  dc.clearRect(0,0,W,H);
+  // Draw expression
+  drawExpr(dc, preset.expr);
+  // Draw text
+  const tSize = 54;
+  const tY = preset.tpos==='top'?54 : preset.tpos==='bottom'?306:180;
+  drawBoldText(dc, preset.text, W/2, tY, tSize, preset.tcolor, preset.tout, 344);
+  // Add preset emoji (floating, corner)
+  const eSize = 60;
+  const eX = preset.tpos==='top' ? W-50 : 50;
+  const eY = preset.tpos==='top' ? H-50 : 50;
+  dc.save();
+  dc.font=`${eSize}px serif`; dc.textAlign='center'; dc.textBaseline='middle';
+  dc.translate(eX,eY); dc.rotate((Math.random()-0.5)*0.5);
+  dc.fillText(preset.emoji,0,0);
+  dc.restore();
+}
+
+function autoGenAll() {
+  if (!cartoonCanvas) { showNotice('먼저 사진을 업로드하세요!'); return; }
+  showSpinner('18개 이모티콘 생성 중...');
+  setTimeout(()=>{
+    for(let i=0;i<18;i++) generateFrame(i);
+    renderBase();
+    ctxO.clearRect(0,0,W,H);
+    ctxO.drawImage(frames[cur].drawCanvas,0,0);
+    renderAllThumbs();
+    hideSpinner();
+    showNotice('⚡ 18개 이모티콘 생성 완료!');
+  },20);
+}
+
+function applyOneCurrent() {
+  if (!cartoonCanvas) { showNotice('먼저 사진을 업로드하세요!'); return; }
+  frames[cur].undoStack.push(frames[cur].drawCanvas.getContext('2d').getImageData(0,0,W,H));
+  generateFrame(cur);
+  renderBase();
+  ctxO.clearRect(0,0,W,H);
+  ctxO.drawImage(frames[cur].drawCanvas,0,0);
+  renderThumb(cur);
+  showNotice(`${PRESETS[cur].emoji} ${PRESETS[cur].name} 적용!`);
+}
+
+function reApplyCurrent() {
+  document.getElementById('faceYv').textContent=faceOffY;
+  document.getElementById('faceScalev').textContent=Math.round(faceScl*100);
+  if (!cartoonCanvas) return;
+  generateFrame(cur);
+  renderBase();
+  ctxO.clearRect(0,0,W,H);
+  ctxO.drawImage(frames[cur].drawCanvas,0,0);
+  renderThumb(cur);
+}
+
+/* ═══════════════════════════════════════════
+   DRAWING TOOLS (on overlay)
+═══════════════════════════════════════════ */
+function setTool(t) {
+  activeTool=t;
+  document.querySelectorAll('.tb[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  cOver.style.cursor=t==='eraser'?'cell':t==='text'?'text':t==='sticker'?'copy':'crosshair';
+}
+
+function pos(e) {
+  const r=cOver.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  return [(cx-r.left)*W/r.width,(cy-r.top)*H/r.height];
+}
+
+function saveUndoFrame(){
+  const f=frames[cur];
+  f.undoStack.push(f.drawCanvas.getContext('2d').getImageData(0,0,W,H));
+  if(f.undoStack.length>20)f.undoStack.shift();
+}
+function undoFrame(){
+  const f=frames[cur];
+  if(!f.undoStack.length)return;
+  f.drawCanvas.getContext('2d').putImageData(f.undoStack.pop(),0,0);
+  ctxO.clearRect(0,0,W,H); ctxO.drawImage(f.drawCanvas,0,0);
+  renderThumb(cur);
+}
+function clearOver(){
+  if(!confirm('현재 프레임의 그림을 지울까요?'))return;
+  saveUndoFrame();
+  frames[cur].drawCanvas.getContext('2d').clearRect(0,0,W,H);
+  ctxO.clearRect(0,0,W,H); renderThumb(cur);
+}
+
+cOver.addEventListener('mousedown',onDn);
+cOver.addEventListener('mousemove',onMv);
+cOver.addEventListener('mouseup',onUp);
+cOver.addEventListener('mouseleave',onUp);
+cOver.addEventListener('touchstart',e=>{e.preventDefault();onDn(e);},{passive:false});
+cOver.addEventListener('touchmove', e=>{e.preventDefault();onMv(e);},{passive:false});
+cOver.addEventListener('touchend',  e=>{e.preventDefault();onUp(e);},{passive:false});
+
+function onDn(e){
+  const [x,y]=pos(e);
+  if(activeTool==='text'){addText(x,y);return;}
+  if(activeTool==='sticker'){addSticker(x,y);return;}
+  isDrawing=true;lastX=x;lastY=y;
+  saveUndoFrame();
+  const dc=frames[cur].drawCanvas.getContext('2d');
+  if(activeTool==='eraser')dc.globalCompositeOperation='destination-out';
+  else dc.globalCompositeOperation='source-over';
+  dc.lineWidth=brushSz;dc.lineCap='round';dc.lineJoin='round';dc.strokeStyle=fgColor;dc.fillStyle=fgColor;
+  dc.beginPath();dc.arc(x,y,brushSz/2,0,Math.PI*2);dc.fill();
+  dc.beginPath();dc.moveTo(x,y);
+  ctxO.clearRect(0,0,W,H);ctxO.drawImage(frames[cur].drawCanvas,0,0);
+}
+function onMv(e){
+  if(!isDrawing)return;
+  const [x,y]=pos(e);
+  const dc=frames[cur].drawCanvas.getContext('2d');
+  dc.lineWidth=brushSz;dc.lineCap='round';dc.lineJoin='round';dc.strokeStyle=fgColor;
+  if(activeTool==='brush'){
+    const steps=Math.max(1,Math.ceil(Math.hypot(x-lastX,y-lastY)));
+    for(let i=0;i<=steps;i++){
+      const tx=lastX+(x-lastX)*i/steps,ty=lastY+(y-lastY)*i/steps;
+      const g=dc.createRadialGradient(tx,ty,0,tx,ty,brushSz/2);
+      const [r,g2,b]=hexToRgb(fgColor);
+      g.addColorStop(0,`rgba(${r},${g2},${b},0.5)`);g.addColorStop(1,`rgba(${r},${g2},${b},0)`);
+      dc.fillStyle=g;dc.beginPath();dc.arc(tx,ty,brushSz/2,0,Math.PI*2);dc.fill();
+    }
+  } else {
+    dc.lineTo(x,y);dc.stroke();dc.beginPath();dc.moveTo(x,y);
+  }
+  lastX=x;lastY=y;
+  ctxO.clearRect(0,0,W,H);ctxO.drawImage(frames[cur].drawCanvas,0,0);
+}
+function onUp(){
+  if(!isDrawing)return;
+  isDrawing=false;
+  frames[cur].drawCanvas.getContext('2d').globalCompositeOperation='source-over';
+  renderThumb(cur);
+}
+function addText(x,y){
+  const t=prompt('텍스트 입력:','ㅋㅋㅋ');if(!t)return;
+  saveUndoFrame();
+  const dc=frames[cur].drawCanvas.getContext('2d');
+  drawBoldText(dc,t,x,y,brushSz*5,fgColor,'#000',340);
+  ctxO.clearRect(0,0,W,H);ctxO.drawImage(frames[cur].drawCanvas,0,0);
+  renderThumb(cur);
+}
+function addSticker(x,y){
+  saveUndoFrame();
+  const dc=frames[cur].drawCanvas.getContext('2d');
+  dc.save();dc.translate(x,y);dc.rotate((Math.random()-0.5)*0.6);
+  dc.font=`${brushSz*5}px serif`;dc.textAlign='center';dc.textBaseline='middle';
+  dc.fillText(activeStkr,0,0);dc.restore();
+  ctxO.clearRect(0,0,W,H);ctxO.drawImage(frames[cur].drawCanvas,0,0);
+  renderThumb(cur);
+}
+
+/* ═══════════════════════════════════════════
+   FILTER / COLOR
+═══════════════════════════════════════════ */
+function updateFrameFilter(){
+  const f=frames[cur].filter;
+  f.br=+document.getElementById('slBr').value;
+  f.co=+document.getElementById('slCo').value;
+  f.sa=+document.getElementById('slSa').value;
+  document.getElementById('brv').textContent=f.br;
+  document.getElementById('cov').textContent=f.co;
+  document.getElementById('sav').textContent=f.sa;
+  renderBase();renderThumb(cur);
+}
+function setColor(hex){
+  fgColor=hex;
+  document.getElementById('cdot').style.background=hex;
+  document.getElementById('cprev').style.background=hex;
+  document.getElementById('hxinp').value=hex;
+}
+function hexToRgb(hex){
+  return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];
+}
+
+/* ═══════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════ */
+function exportCurrent(){
+  const tmp=compositeForExport(cur);
+  tmp.toBlob(blob=>{
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=`emoticon_${cur+1}_${PRESETS[cur].name}.png`;a.click();
+    showNotice('저장 완료!');
+  });
+}
+function exportAll(){
+  if(!cartoonCanvas){showNotice('먼저 사진을 업로드하세요!');return;}
+  frames.forEach((_,i)=>{
+    const tmp=compositeForExport(i);
+    setTimeout(()=>{
+      tmp.toBlob(blob=>{
+        const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+        a.download=`emoticon_${String(i+1).padStart(2,'0')}_${PRESETS[i].name}.png`;a.click();
+      });
+    },i*180);
+  });
+  showNotice('18개 PNG 저장 시작!');
+}
+
+/* ═══════════════════════════════════════════
+   PHOTO UPLOAD
+═══════════════════════════════════════════ */
+function triggerUpload(){document.getElementById('fInput').click();}
+function loadPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  document.getElementById('pname').textContent=file.name;
+  const img=new Image(), url=URL.createObjectURL(file);
+  img.onload=()=>{
+    sourceImg=img; URL.revokeObjectURL(url);
+    document.getElementById('dropZone').classList.add('gone');
+    applyCartoon();
+  };
+  img.src=url;
+}
+const cArea=document.getElementById('cArea');
+cArea.addEventListener('dragover',e=>e.preventDefault());
+cArea.addEventListener('drop',e=>{
+  e.preventDefault();
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')){
+    document.getElementById('fInput').files; // workaround
+    const dt=new DataTransfer();dt.items.add(file);
+    document.getElementById('fInput').files=dt.files;
+    loadPhoto({target:{files:[file]}});
+  }
+});
+
+function setStyle(s){artStyle=s;document.querySelectorAll('.stab').forEach(b=>b.classList.toggle('on',b.dataset.s===s));if(sourceImg)applyCartoon();}
+
+/* ═══════════════════════════════════════════
+   SPINNER / NOTICE
+═══════════════════════════════════════════ */
+function showSpinner(msg){document.getElementById('spinMsg').textContent=msg;document.getElementById('spinner').classList.add('on');}
+function hideSpinner(){document.getElementById('spinner').classList.remove('on');}
+let nTimer;
+function showNotice(msg){
+  const el=document.getElementById('notice');el.textContent=msg;el.classList.add('show');
+  clearTimeout(nTimer);nTimer=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+/* ═══════════════════════════════════════════
+   BUILD UI
+═══════════════════════════════════════════ */
+function buildTiles(){
+  const g=document.getElementById('tilesGrid');g.innerHTML='';
+  PRESETS.forEach((p,i)=>{
+    const d=document.createElement('div');d.className='tile'+(i===0?' on':'');d.dataset.id=i;
+    const tc=document.createElement('canvas');tc.width=W;tc.height=H;
+    const lbl=document.createElement('div');lbl.className='tile-lbl';lbl.textContent=`${p.emoji} ${p.name}`;
+    const qb=document.createElement('button');qb.className='tile-q';qb.textContent='적용';
+    qb.onclick=e=>{e.stopPropagation();switchFrame(i);applyOneCurrent();};
+    d.appendChild(tc);d.appendChild(lbl);d.appendChild(qb);
+    d.onclick=()=>switchFrame(i);
+    g.appendChild(d);
+  });
+  document.getElementById('cnt').textContent='0/18';
+}
+
+function buildExprGrid(){
+  const g=document.getElementById('exprGrid');g.innerHTML='';
+  PRESETS.forEach((p,i)=>{
+    const b=document.createElement('button');b.className='exbtn'+(i===0?' on':'');b.dataset.fi=i;
+    b.innerHTML=`<span class="ei">${p.emoji}</span>${p.name}`;
+    b.onclick=()=>{
+      switchFrame(i);
+      if(cartoonCanvas)applyOneCurrent();
+    };
+    g.appendChild(b);
+  });
+}
+
+function buildPresetList(){
+  const g=document.getElementById('presetList');g.innerHTML='';
+  PRESETS.forEach((p,i)=>{
+    const b=document.createElement('button');b.className='exbtn'+(i===0?' on':'');b.dataset.id=i;
+    b.innerHTML=`<span class="ei">${p.emoji}</span>${p.name}`;
+    b.onclick=()=>switchFrame(i);
+    g.appendChild(b);
+  });
+}
+
+function buildTextPresets(){
+  const c=document.getElementById('tpContainer');c.innerHTML='';
+  PRESETS.forEach((p,i)=>{
+    const b=document.createElement('button');b.className='tpbtn';
+    b.innerHTML=`<span style="font-size:16px">${p.emoji}</span>${p.text}`;
+    b.onclick=()=>{
+      if(!cartoonCanvas){showNotice('먼저 사진을 업로드하세요!');return;}
+      saveUndoFrame();
+      const dc=frames[cur].drawCanvas.getContext('2d');
+      const tY=p.tpos==='top'?54:p.tpos==='bottom'?306:180;
+      drawBoldText(dc,p.text,W/2,tY,54,p.tcolor,p.tout,344);
+      ctxO.clearRect(0,0,W,H);ctxO.drawImage(frames[cur].drawCanvas,0,0);
+      renderThumb(cur);
+    };
+    c.appendChild(b);
+  });
+}
+
+function buildStickerGrid(){
+  const g=document.getElementById('stickerGrid');g.innerHTML='';
+  STICKERS.forEach(s=>{
+    const b=document.createElement('button');b.className='stkbtn'+(s===activeStkr?' on':'');
+    b.textContent=s;
+    b.onclick=()=>{
+      activeStkr=s;setTool('sticker');
+      document.querySelectorAll('.stkbtn').forEach(x=>x.classList.toggle('on',x.textContent===s));
+    };
+    g.appendChild(b);
+  });
+}
+
+function buildPalette(){
+  const g=document.getElementById('palGrid');g.innerHTML='';
+  PALETTE.forEach(c=>{
+    const d=document.createElement('div');d.className='pd';d.style.background=c;
+    d.onclick=()=>{setColor(c);document.getElementById('cpick').value=c;};
+    g.appendChild(d);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.ctrlKey&&e.key.toLowerCase()==='z'){e.preventDefault();undoFrame();return;}
+  const k=e.key.toLowerCase();
+  if(k==='p')setTool('pen');if(k==='b')setTool('brush');
+  if(k==='e')setTool('eraser');if(k==='t')setTool('text');if(k==='s')setTool('sticker');
+  if(k==='['){const sl=document.getElementById('szSlider');sl.value=Math.max(1,+sl.value-2);brushSz=+sl.value;}
+  if(k===']'){const sl=document.getElementById('szSlider');sl.value=Math.min(50,+sl.value+2);brushSz=+sl.value;}
+  if(k==='arrowleft')switchFrame(cur-1);
+  if(k==='arrowright')switchFrame(cur+1);
+});
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+function init(){
+  buildTiles();buildExprGrid();buildPresetList();buildTextPresets();buildStickerGrid();buildPalette();
+  setColor('#FFD700');
+  renderBase();
+  showNotice('사진을 업로드하면 자동으로 일러스트화 → 18개 병맛 이모티콘 생성! 😜');
+}
+init();
+</script>
+</body>
+</html>

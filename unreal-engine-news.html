@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unreal Engine 최신 현황 2026</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --card: #1e1e1e;
+      --border: #2a2a2a;
+      --accent: #0078ff;
+      --accent2: #00d4ff;
+      --orange: #ff6b1a;
+      --green: #00e676;
+      --text: #e8e8e8;
+      --muted: #888;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 80px 24px 60px;
+      text-align: center;
+      background: linear-gradient(135deg, #0a0a1a 0%, #0d1a2e 50%, #0a0a1a 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,120,255,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(0,212,255,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(0,120,255,0.15);
+      border: 1px solid rgba(0,120,255,0.4);
+      color: var(--accent2);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #ffffff 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .hero-version {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 12px 24px;
+      border-radius: 50px;
+    }
+    .version-dot {
+      width: 10px; height: 10px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero-version span { font-weight: 700; font-size: 1rem; }
+    .hero-version small { color: var(--muted); font-size: 0.85rem; }
+
+    /* LAYOUT */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section {
+      padding: 60px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      margin-bottom: 40px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .section-header h2 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    /* FEATURE GRID */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .badge-stable { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+    .badge-exp    { background: rgba(255,107,26,0.15); color: var(--orange); border: 1px solid rgba(255,107,26,0.3); }
+    .badge-new    { background: rgba(0,120,255,0.15);  color: var(--accent2); border: 1px solid rgba(0,120,255,0.3); }
+
+    /* GAMES */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .game-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: border-color 0.2s;
+    }
+    .game-card:hover { border-color: rgba(0,120,255,0.5); }
+    .game-num {
+      min-width: 32px; height: 32px;
+      border-radius: 8px;
+      background: rgba(0,120,255,0.1);
+      border: 1px solid rgba(0,120,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent2);
+    }
+    .game-info h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+    .game-info p  { font-size: 0.8rem; color: var(--muted); }
+    .game-tag {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .game-tag.released { border-color: rgba(0,230,118,0.3); color: var(--green); }
+    .game-tag.upcoming { border-color: rgba(0,120,255,0.3); color: var(--accent2); }
+
+    /* TIMELINE */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px; top: 8px; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 32px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -24px; top: 6px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .timeline-date {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent2);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .timeline-item h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .timeline-item p  { font-size: 0.875rem; color: var(--muted); }
+
+    /* UE6 SECTION */
+    .ue6-box {
+      background: linear-gradient(135deg, #0d1a2e, #0a1520);
+      border: 1px solid rgba(0,120,255,0.3);
+      border-radius: 16px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .ue6-box::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -10%;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,120,255,0.08) 0%, transparent 70%);
+    }
+    .ue6-box h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .ue6-box > p { color: var(--muted); margin-bottom: 28px; max-width: 600px; }
+    .ue6-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .ue6-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .ue6-item .icon { font-size: 22px; margin-bottom: 8px; }
+    .ue6-item h4 { font-size: 0.875rem; font-weight: 600; margin-bottom: 4px; }
+    .ue6-item p  { font-size: 0.8rem; color: var(--muted); }
+
+    /* STATS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+    .stat-card .num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-card p { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    footer a { color: var(--accent2); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .ue6-box { padding: 24px; }
+      section { padding: 40px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-badge">2026 현황 리포트</div>
+    <h1>Unreal Engine<br>최신 현황</h1>
+    <p>Epic Games의 차세대 실시간 렌더링 엔진 — UE 5.7부터 UE6 로드맵까지</p>
+    <div class="hero-version">
+      <span class="version-dot"></span>
+      <span>Unreal Engine 5.7</span>
+      <small>최신 안정 릴리스 · 2025년 11월 12일</small>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<section>
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="num">5.7</div>
+        <p>현재 최신 버전</p>
+      </div>
+      <div class="stat-card">
+        <div class="num">20+</div>
+        <p>Game Awards 2025 노미네이션 타이틀 수</p>
+      </div>
+      <div class="stat-card">
+        <div class="num">2030</div>
+        <p>UE6 정식 출시 예상 연도</p>
+      </div>
+      <div class="stat-card">
+        <div class="num">수천만</div>
+        <p>UE6 목표 동시 접속자 수</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEW FEATURES -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">What's New</div>
+      <h2>UE 5.7 주요 신기능</h2>
+    </div>
+    <div class="feature-grid">
+
+      <div class="feature-card">
+        <div class="badge badge-stable">Production Ready</div>
+        <div class="feature-icon" style="background:rgba(0,230,118,0.1)">🌿</div>
+        <h3>PCG — Procedural Content Generation</h3>
+        <p>방대한 오픈 월드를 자동으로 채우는 PCG 프레임워크가 정식 프로덕션 등급으로 승격됐습니다. 새로운 Procedural Vegetation Editor(PVE)로 고품질 식생을 그래프 기반으로 빠르게 구성할 수 있습니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="badge badge-exp">Experimental</div>
+        <div class="feature-icon" style="background:rgba(255,107,26,0.1)">🌲</div>
+        <h3>Nanite Foliage</h3>
+        <p>Nanite 가상 지오메트리 시스템이 밀도 높은 수목·식물군으로 확장됩니다. 수동 LOD 없이 현세대 하드웨어에서 고밀도 자연환경을 효율적으로 렌더링합니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="badge badge-stable">Production Ready</div>
+        <div class="feature-icon" style="background:rgba(0,120,255,0.1)">🎨</div>
+        <h3>Substrate 머티리얼 프레임워크</h3>
+        <p>물리 기반 레이어드 머티리얼을 모바일을 포함한 모든 플랫폼에서 모듈식으로 구성할 수 있는 Substrate가 프로덕션 등급을 획득했습니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="badge badge-new">New</div>
+        <div class="feature-icon" style="background:rgba(0,212,255,0.1)">🦴</div>
+        <h3>애니메이션 & 리깅 개선</h3>
+        <p>개편된 Animation Mode, Selection Sets(미러 복사 자동 생성), 개선된 IK Retargeter(발 접지·스쿼시/스트레치 지원)로 애니메이터 워크플로우를 크게 향상했습니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="badge badge-new">New</div>
+        <div class="feature-icon" style="background:rgba(255,200,0,0.1)">🤖</div>
+        <h3>인에디터 AI 어시스턴트</h3>
+        <p>UE 5.7 에디터에 AI 어시스턴트가 내장됩니다. 개발자 질문에 답하고 C++ 코드 스니펫을 자동 생성하며, 개발 생산성을 직접 지원합니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="badge badge-new">New</div>
+        <div class="feature-icon" style="background:rgba(180,0,255,0.1)">🎥</div>
+        <h3>MetaHuman 자동화</h3>
+        <p>Python·Blueprint를 통해 캐릭터 에셋을 일괄 처리할 수 있으며, 오프라인 컴퓨팅 팜에 작업을 분산할 수 있습니다. 대규모 버추얼 프로덕션에 적합합니다.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="badge badge-new">New</div>
+        <div class="feature-icon" style="background:rgba(0,230,118,0.1)">📡</div>
+        <h3>Live Link Broadcast Component</h3>
+        <p>Unreal Engine 자체가 네트워크 상 애니메이션 데이터 소스로 동작할 수 있어, 멀티머신 버추얼 프로덕션·모션캡처 스테이지 워크플로우를 가능하게 합니다.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Notable Titles</div>
+      <h2>주목할 UE5 게임 & 프로젝트</h2>
+    </div>
+    <div class="games-grid">
+
+      <div class="game-card">
+        <div class="game-num">01</div>
+        <div class="game-info">
+          <h4>Clair Obscur: Expedition 33</h4>
+          <p>Game Awards 2025 역대 최다 12개 부문 노미네이션</p>
+          <span class="game-tag released">출시됨</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-num">02</div>
+        <div class="game-info">
+          <h4>Metal Gear Solid Delta: Snake Eater</h4>
+          <p>Konami · 2025년 9월 25일 출시</p>
+          <span class="game-tag released">출시됨</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-num">03</div>
+        <div class="game-info">
+          <h4>Eternal Strands</h4>
+          <p>2025년 1월 28일 출시</p>
+          <span class="game-tag released">출시됨</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-num">04</div>
+        <div class="game-info">
+          <h4>Marvel 1943: Rise of Hydra</h4>
+          <p>Captain America & Black Panther 주연 · 2026년 출시 예정</p>
+          <span class="game-tag upcoming">출시 예정</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-num">05</div>
+        <div class="game-info">
+          <h4>Gears of War: E-Day</h4>
+          <p>오리지널 14년 전 프리퀄 · 2026년 출시 예정</p>
+          <span class="game-tag upcoming">출시 예정</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-num">06</div>
+        <div class="game-info">
+          <h4>Directive 8020</h4>
+          <p>Supermassive Games · 2026년 5월 12일 출시 예정</p>
+          <span class="game-tag upcoming">출시 예정</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ANNOUNCEMENTS TIMELINE -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Recent Announcements</div>
+      <h2>Epic Games 주요 발표</h2>
+    </div>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-date">2026년 6월 16~18일 예정</div>
+        <h3>Unreal Fest Chicago 2026</h3>
+        <p>UE, UEFN, Epic 생태계 전반에 걸친 신규 발표가 예상되는 연례 개발자 행사입니다.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">2026년 1월 2일</div>
+        <h3>Aura AI 어시스턴트 상용 출시</h3>
+        <p>씬 조명 자동화, 수천 개 Blueprint 일괄 수정, C++ 파일 생성·수정이 가능한 에이전트 도구. 한 VR 스튜디오는 이를 활용해 개발 기간을 절반으로 단축했습니다.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">2026년 1월 CES</div>
+        <h3>CES 2026 — 자동차 HMI부터 시뮬레이션까지</h3>
+        <p>Unreal Engine이 게임을 넘어 자동차 HMI, 산업 시뮬레이션 등 다양한 분야로 영역을 넓히고 있음을 확인한 전시였습니다.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">2025년 11월 12일</div>
+        <h3>Unreal Engine 5.7 정식 출시</h3>
+        <p>PCG·Substrate 프로덕션 등급 승격, Nanite Foliage 실험 기능, 인에디터 AI 어시스턴트 등을 포함한 주요 릴리스입니다.</p>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">2025년 State of Unreal</div>
+        <h3>위처 4 UE5 기술 데모 공개</h3>
+        <p>CD Projekt Red의 위처 4가 UE5로 개발 중임을 기술 데모를 통해 공개했으며, MetaHuman 업데이트 및 UEFN 신규 IP도 발표됐습니다.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- UE6 -->
+<section style="border-bottom:none">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Looking Ahead</div>
+      <h2>Unreal Engine 6 — 미래 전망</h2>
+    </div>
+    <div class="ue6-box">
+      <h2>Unreal Engine 6</h2>
+      <p>Tim Sweeney CEO가 공개한 UE6 비전 — 엔진의 근본적 한계를 극복하고 수천만 명이 동시에 존재하는 가상 세계를 구현합니다.</p>
+      <div class="ue6-features">
+        <div class="ue6-item">
+          <div class="icon">🗓️</div>
+          <h4>출시 일정</h4>
+          <p>프리뷰 2027~2028년, 정식 출시 2030년경 예상</p>
+        </div>
+        <div class="ue6-item">
+          <div class="icon">💬</div>
+          <h4>Verse 언어</h4>
+          <p>UE6의 핵심 프로그래밍 언어로 Verse가 채택될 예정</p>
+        </div>
+        <div class="ue6-item">
+          <div class="icon">🌐</div>
+          <h4>수천만 동시 접속</h4>
+          <p>진정한 퍼시스턴트 월드를 위한 대규모 공유 시뮬레이션 목표</p>
+        </div>
+        <div class="ue6-item">
+          <div class="icon">⚙️</div>
+          <h4>모듈형 분산 물리</h4>
+          <p>모듈·분산 물리 엔진으로 기존 한계를 근본부터 재설계</p>
+        </div>
+        <div class="ue6-item">
+          <div class="icon">🚀</div>
+          <h4>Build Once, Deploy Anywhere</h4>
+          <p>단독 게임, Fortnite 아일랜드 등 모든 형태로 동시 배포 가능</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>데이터 기준: 2026년 3월 · 출처: <a href="https://www.unrealengine.com" target="_blank">unrealengine.com</a>, Epic Games, 각종 업계 매체</p>
+    <p style="margin-top:8px">This page is for informational purposes only and is not affiliated with Epic Games.</p>
+  </div>
+</footer>
+
+</body>
+</html>
