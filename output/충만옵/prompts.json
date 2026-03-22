@@ -1,0 +1,110 @@
+[
+  {
+    "slot_id": "01_hi",
+    "filename": "01_hi.png",
+    "emotion": "인사/안녕",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: big warm smile, happy crinkled eyes, rosy cheeks. Pose: waving hand high in greeting, cheerful pose. Effects: warm sparkles around. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "02_thanks",
+    "filename": "02_thanks.png",
+    "emotion": "감사/고마워",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: teary grateful eyes, warm smile, deeply moved expression. Pose: hands clasped together in gratitude. Effects: pink hearts floating. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "03_love",
+    "filename": "03_love.png",
+    "emotion": "사랑/좋아해",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: HEART SHAPED EYES replacing normal eyes, drooling, deep blush on cheeks. Pose: swooning lovesick pose. Effects: red and pink hearts everywhere. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "04_cry",
+    "filename": "04_cry.png",
+    "emotion": "울음/슬픔",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: waterfall tears pouring down, huge sad eyes, quivering mouth, eyebrows sharply angled down. Pose: shoulders hunched, sobbing. Effects: giant teardrops. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "05_angry",
+    "filename": "05_angry.png",
+    "emotion": "분노/화남",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: ENTIRE FACE FLUSHED BRIGHT RED, steam from ears and head, thick angry eyebrows, gritted teeth. Pose: fists clenched, leaning forward aggressively. Effects: anger marks, steam clouds, red aura. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "06_surprise",
+    "filename": "06_surprise.png",
+    "emotion": "놀람/충격",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: EYES HUGELY WIDE taking up half the face, jaw completely dropped open, eyebrows at hairline. Pose: hands on cheeks in shock. Effects: shock lines radiating outward. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "07_lol",
+    "filename": "07_lol.png",
+    "emotion": "웃음/ㅋㅋ",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: eyes shut into curved lines from laughter, mouth open huge, tears spraying out. Pose: body shaking with laughter, doubled over. Effects: laugh tears flying, happy aura. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "08_ok",
+    "filename": "08_ok.png",
+    "emotion": "좋아요/엄지",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: one eye winking, SKULL or STAR eyes for comic effect, smug smirk. Pose: big thumbs up gesture. Effects: gold sparkles, OK symbol. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "09_sorry",
+    "filename": "09_sorry.png",
+    "emotion": "미안/죄송",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: enormous watery puppy eyes, quivering lip, deeply apologetic. Pose: deep bow, hands pressed together. Effects: sweat drops, sorry aura. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "10_party",
+    "filename": "10_party.png",
+    "emotion": "축하/파티",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: huge open mouth smile, spiral dizzy excited eyes, pure joy. Pose: jumping up, party hat on. Effects: colorful confetti everywhere, streamers. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "11_tired",
+    "filename": "11_tired.png",
+    "emotion": "피곤/지침",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: heavy half-closed eyelids, drooping exhausted mouth, dark circles, ghost floating near head. Pose: slumped slouching posture. Effects: ZZZ bubbles, gray dull aura. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "12_no",
+    "filename": "12_no.png",
+    "emotion": "거부/싫어",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: sharp cold eyes, firm closed mouth, stern expression. Pose: arms crossed firmly in X shape. Effects: red X symbol. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "13_work",
+    "filename": "13_work.png",
+    "emotion": "출근/좀비",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: COMPLETELY DEAD EMPTY EYES, blank stare, mouth slightly open, extreme dark circles. Pose: walking like zombie, briefcase in hand. Effects: flies buzzing, gray zombie aura. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "14_off",
+    "filename": "14_off.png",
+    "emotion": "퇴근/해방",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: huge ecstatic smile, shining bright eyes, overwhelming relief. Pose: jumping for joy, bag thrown in air. Effects: rainbow, explosion of bright colors. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "15_eat",
+    "filename": "15_eat.png",
+    "emotion": "밥먹자",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: sparkling hungry eyes, drool drop, excited anticipation. Pose: leaning toward food bowl, chopsticks ready. Effects: steam rising from food. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "16_coffee",
+    "filename": "16_coffee.png",
+    "emotion": "커피/카페인",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: TINY DILATED PUPILS from caffeine, manically wide awake eyes, jittery expression. Pose: holding coffee cup, vibrating with energy. Effects: electric lightning bolts around body. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "17_sleep",
+    "filename": "17_sleep.png",
+    "emotion": "잠/졸림",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: eyes completely closed, peaceful slight smile. Pose: head drooping, totally asleep. Effects: ZZZ floating up, moon and stars. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  },
+  {
+    "slot_id": "18_fighting",
+    "filename": "18_fighting.png",
+    "emotion": "응원/파이팅",
+    "prompt": "Korean webtoon emoticon sticker, cartoon character with oversized head and tiny body, thick bold black outlines, clean flat 2D coloring, face features HIGHLY exaggerated to express emotion, PURE WHITE BACKGROUND absolutely nothing else, no background elements no patterns no shadows, ONE character only centered, no text no words. Character: male, Black, short, slightly tousled with side-swept bangs, wearing Brown/tortoiseshell rectangular frames, Dark navy zip-up jacket over a white collared shirt. Face: fierce burning eyes, clenched jaw, intense determined look. Pose: fist pumped forward in power pose. Effects: fire flames, energy rays. CRITICAL: pure white background only. CRITICAL: ONE character only."
+  }
+]
