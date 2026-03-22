@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나만의 이모티콘</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif; background:#fff8f0; }
+  header { background:linear-gradient(135deg,#ff6b6b,#ffd93d); padding:40px 20px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,.1); }
+  header h1 { font-size:2rem; color:white; text-shadow:2px 2px 4px rgba(0,0,0,.2); margin-bottom:8px; }
+  header p { color:rgba(255,255,255,.9); font-size:.95rem; }
+  .badge { display:inline-block; background:white; color:#ff6b6b; border-radius:20px; padding:4px 14px; font-size:.85rem; font-weight:bold; margin-top:12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; padding:32px 24px; max-width:900px; margin:0 auto; }
+  .card { background:white; border-radius:16px; padding:16px 12px 12px; text-align:center; box-shadow:0 2px 12px rgba(0,0,0,.08); transition:transform .2s,box-shadow .2s; cursor:pointer; }
+  .card:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,.14); }
+  .card img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; margin-bottom:10px; }
+  .card p { font-size:.82rem; color:#666; font-weight:500; }
+  footer { text-align:center; padding:32px; color:#aaa; font-size:.82rem; }
+  .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:100; align-items:center; justify-content:center; }
+  .modal.show { display:flex; }
+  .modal img { max-width:80vw; max-height:80vh; border-radius:16px; }
+  .modal-close { position:fixed; top:20px; right:28px; color:white; font-size:2rem; cursor:pointer; font-weight:bold; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎭 나만의 이모티콘</h1>
+  <p>AI가 만든 나만의 카카오 이모티콘</p>
+  <span class="badge">✨ 18종 세트</span>
+</header>
+<div class="grid">
+        <div class="card" onclick="openModal('emoticons/01_hi.png')">
+            <img src="emoticons/01_hi.png" alt="인사/안녕">
+            <p>인사/안녕</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/02_thanks.png')">
+            <img src="emoticons/02_thanks.png" alt="감사/고마워">
+            <p>감사/고마워</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/03_love.png')">
+            <img src="emoticons/03_love.png" alt="사랑/좋아해">
+            <p>사랑/좋아해</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/04_cry.png')">
+            <img src="emoticons/04_cry.png" alt="울음/슬픔">
+            <p>울음/슬픔</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/05_angry.png')">
+            <img src="emoticons/05_angry.png" alt="분노/화남">
+            <p>분노/화남</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/06_surprise.png')">
+            <img src="emoticons/06_surprise.png" alt="놀람/충격">
+            <p>놀람/충격</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/07_lol.png')">
+            <img src="emoticons/07_lol.png" alt="웃음/ㅋㅋ">
+            <p>웃음/ㅋㅋ</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/08_ok.png')">
+            <img src="emoticons/08_ok.png" alt="좋아요/엄지">
+            <p>좋아요/엄지</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/09_sorry.png')">
+            <img src="emoticons/09_sorry.png" alt="미안/죄송">
+            <p>미안/죄송</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/10_party.png')">
+            <img src="emoticons/10_party.png" alt="축하/파티">
+            <p>축하/파티</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/11_tired.png')">
+            <img src="emoticons/11_tired.png" alt="피곤/지침">
+            <p>피곤/지침</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/12_no.png')">
+            <img src="emoticons/12_no.png" alt="거부/싫어">
+            <p>거부/싫어</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/13_work.png')">
+            <img src="emoticons/13_work.png" alt="출근/좀비">
+            <p>출근/좀비</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/14_off.png')">
+            <img src="emoticons/14_off.png" alt="퇴근/해방">
+            <p>퇴근/해방</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/15_eat.png')">
+            <img src="emoticons/15_eat.png" alt="밥먹자">
+            <p>밥먹자</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/16_coffee.png')">
+            <img src="emoticons/16_coffee.png" alt="커피/카페인">
+            <p>커피/카페인</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/17_sleep.png')">
+            <img src="emoticons/17_sleep.png" alt="잠/졸림">
+            <p>잠/졸림</p>
+        </div>
+        <div class="card" onclick="openModal('emoticons/18_fighting.png')">
+            <img src="emoticons/18_fighting.png" alt="응원/파이팅">
+            <p>응원/파이팅</p>
+        </div></div>
+<footer>Made with Claude + DALL-E 3 &nbsp;|&nbsp; 2026.03.22</footer>
+<div class="modal" id="modal" onclick="closeModal()">
+  <span class="modal-close">&times;</span>
+  <img id="modal-img" src="" alt="">
+</div>
+<script>
+  function openModal(src) {
+    document.getElementById('modal-img').src = src;
+    document.getElementById('modal').classList.add('show');
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('show');
+  }
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
